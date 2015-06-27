@@ -23,6 +23,8 @@ namespace barcode
         public static string curSN = "";
 
         public static string putBuffer = "";
+        public static string prevPutBuffer = "";
+
 
         public static Dictionary<string, DataTable> dataListSN = new Dictionary<string, DataTable>();
         public static Dictionary<string, string> dataListSN2 = new Dictionary<string, string>();

@@ -23,6 +23,7 @@ namespace barcode
         public System.Windows.Forms.Timer inter1 = new System.Windows.Forms.Timer();
         public System.Windows.Forms.Timer inter2 = new System.Windows.Forms.Timer();
         public int count = 0;
+        public string prevDebugStr = "";
 
         public Form2()
         {
@@ -44,9 +45,11 @@ namespace barcode
 
 
             //textBox2.Text = (WinCE.readMemFile());
-            
+            WinCE.createMemFile("OK");
+
+
             inter2.Enabled = false;
-            inter2.Interval = 1000; // 1 second
+            inter2.Interval = 3000; // 1 second
             inter2.Tick += delegate { checkData(); };
             inter2.Enabled = true;
 
@@ -54,17 +57,23 @@ namespace barcode
 
         }
 
-
+        public void debug(string str) {
+            if (prevDebugStr == str) return;
+            prevDebugStr = str;
+            txtDebug.Text = str + "\r\n" + txtDebug.Text;
+        }
 
         public void checkData()
         {
             string sql;
             string data = (WinCE.readMemFile());
 
-            if (data=="OK" && Data.putBuffer != "") {
-                txtDebug.Text = Data.putBuffer;
+            if (data.StartsWith("<<<<")) return;
+
+            if (data=="OK" && Data.putBuffer != "" && Data.prevPutBuffer!=Data.putBuffer ) {
                 WinCE.createMemFile("<<<<" + Data.putBuffer);
-                Data.putBuffer = "";
+                Data.prevPutBuffer = Data.putBuffer;
+                debug("Send:"+Data.putBuffer);
                 return;
             }
 
@@ -72,22 +81,14 @@ namespace barcode
             {
                 WinCE.createMemFile("OK");
                 sql = data.Substring(4);
+                debug("Get:"+sql);
                 string [] lines = Regex.Split(sql, "@&&@");
                 Data.dataListSN2.Add(lines[0], sql);
                 if (lines[0]==Data.curSN) updateLV2(sql);
                 return;
             }
 
-            char[] array = data.ToCharArray();
-            string d="";
-            // Loop through array.
-            for (int i = 0; i < array.Length; i++)
-            {
-                // Get character from array.
-                 d += ((int)array[i]).ToString() + " ";
-            }
-
-            txtDebug.Text = data.Length.ToString() + " "+ data ;
+            debug(Data.putBuffer + " " + data);
         }
 
 
@@ -120,7 +121,11 @@ namespace barcode
         }
 
         public void loadSN(string sn) {
-            
+
+            if (Data.curSN == sn) return;
+
+            debug("loadSN: "+sn);
+
             Data.curSN = sn;
 
             if (!Data.dataListSN2.ContainsKey(sn))

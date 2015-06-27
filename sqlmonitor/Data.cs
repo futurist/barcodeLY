@@ -22,6 +22,7 @@ namespace sqlmonitor
 
         public static string curSN = "";
         public static string putBuffer = "";
+        public static string prevPutBuffer = "";
 
         public static Dictionary<string, DataTable> dataListSN = new Dictionary<string, DataTable>();
 
@@ -57,7 +58,7 @@ namespace sqlmonitor
                 }
                 catch (Exception ex)
                 {
-                    //MessageBox.Show("无法连接到数据库！" + ex.Message);
+                    MessageBox.Show("无法连接到数据库！" + ex.Message);
                     Data.showMsg("NC!! " + ex.Message);
                     return null;
                 }

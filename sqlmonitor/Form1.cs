@@ -14,6 +14,7 @@ namespace sqlmonitor
     public partial class Form1 : Form
     {
         public System.Windows.Forms.Timer inter1 = new System.Windows.Forms.Timer();
+        public string prevDebugStr = "";
 
         public Form1()
         {
@@ -28,15 +29,23 @@ namespace sqlmonitor
             
             launchApp();
 
+
             WinCE.createMemFile("OK");
 
             //getDataAsync("P1506160166");
 
             inter1.Enabled = false;
-            inter1.Interval = 1000; // 1 second
+            inter1.Interval = 3000; // 1 second
             inter1.Tick += delegate { checkData(); };
             inter1.Enabled = true;
 
+        }
+
+        public void debug(string str)
+        {
+            if (prevDebugStr == str) return;
+            prevDebugStr = str;
+            txtDebug.Text = str + "\r\n" + txtDebug.Text;
         }
 
         public void checkData()
@@ -45,31 +54,29 @@ namespace sqlmonitor
             
             string data = (WinCE.readMemFile());
 
-            if (data == "OK" && Data.putBuffer != "")
+            if (data.StartsWith(">>>>")) return;
+
+            if (data == "OK" && Data.putBuffer != "" && Data.prevPutBuffer!=Data.putBuffer )
             {
                 WinCE.createMemFile(">>>>" + Data.putBuffer);
-                Data.putBuffer = "";
+                Data.prevPutBuffer = Data.putBuffer;
+                debug("Send:" + Data.putBuffer);
                 return;
             }
 
             if (data.StartsWith("<<<<") && Data.curSN=="")
             {
-                debug(data);
-                //WinCE.createMemFile("OK");
+                WinCE.createMemFile("OK");
                 SN = data.Substring(4);
-                debug(SN);
+                debug("Get:"+SN);
                 getDataAsync(SN);
                 return;
             }
 
-            txtDebug.Text = data;
+            debug(data);
             //txtDebug.Text = (data == "").ToString();
             //if (data.Length > 0) txtDebug.Text += (data == "OK").ToString() + data + ": " + ((int)data[0]).ToString() + " " + ((int)data[data.Length - 1]).ToString();
     
-        }
-
-        public void debug(string str) {
-            WinCE.createMemFile(str);
         }
 
 
@@ -77,7 +84,14 @@ namespace sqlmonitor
 
             MobileLaunch.LaunchApp("\\Program Files\\barcode\\barcode.exe", "");
 
+            this.Closing += exitApp;
+
         }
+
+        private void exitApp(object sender, EventArgs e) {
+            MobileLaunch.exitApp();
+        }
+
 
 
         // 声明一个委托 
@@ -120,7 +134,7 @@ namespace sqlmonitor
             }
             else
             {
-                updateLV(Data.dataListSN[sn]);
+                updateLV(sn, Data.dataListSN[sn]);
             }
 
         }
@@ -143,25 +157,23 @@ namespace sqlmonitor
             }
             catch (Exception e) {
                 string str = "ERROR:" + e.Message;
+                MessageBox.Show(str);
                 //WinCE.createMemFile(str);
                 return;
             }
 
             Data.dataListSN.Add(sn, dt);
 
-            updateLV(dt);
+            updateLV(sn, dt);
         }
 
 
-        public void updateLV(DataTable dt) {
+        public void updateLV(string sn, DataTable dt) {
 
 
             List<string> dtRow = new List<string> { };
             List<string> dtTable = new List<string> { };
 
-            if (dt.Rows.Count == 0) return;
-
-            string sn = dt.Rows[0][0].ToString();
 
             dtTable.Add(sn);
             foreach (DataRow row in dt.Rows)
