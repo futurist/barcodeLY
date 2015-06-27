@@ -73,6 +73,11 @@ namespace sqlmonitor
                 return;
             }
 
+            if (data == "EXIT") {
+                exitApp();
+                return;
+            }
+
             debug(data);
             //txtDebug.Text = (data == "").ToString();
             //if (data.Length > 0) txtDebug.Text += (data == "OK").ToString() + data + ": " + ((int)data[0]).ToString() + " " + ((int)data[data.Length - 1]).ToString();
@@ -88,8 +93,14 @@ namespace sqlmonitor
 
         }
 
-        private void exitApp(object sender, EventArgs e) {
+        public void exitApp() {
+            inter1.Enabled = false;
+            WinCE.createMemFile("EXIT");
             MobileLaunch.exitApp();
+        }
+
+        private void exitApp(object sender, EventArgs e) {
+            exitApp();
         }
 
 
@@ -147,7 +158,7 @@ namespace sqlmonitor
             try
             {
                 dt = DB.Query(
-                    @"select mmindtl.sPackageNo, sdOrderHdr.sMaterialDesc as sCode, mmMaterial.sMaterialName as sName, mmInDtl.sColorNo as sColorNo, mmInDtl.nACPrice as nPrice,
+                    @"select sdOrderHdr.sMaterialDesc as sCode, mmMaterial.sMaterialName as sName, mmInDtl.sColorNo as sColorNo, mmInDtl.nACPrice as nPrice,
                 mmInDtl.sBatchNo as sBatch, mmFabric.sFactWidth as sWidth,  mmFabric.sUnit as sUnit, mmFabric.nNetWeight as nWeight,
                 mmFabric.nQty as nQty,mmInDtl.sFabricNo as sFabricNo from mmInDtl 
                 left join mmFabric on mmFabric.sFabricNo = mmInDtl.sFabricNo 
@@ -175,17 +186,18 @@ namespace sqlmonitor
             List<string> dtTable = new List<string> { };
 
 
-            dtTable.Add(sn);
+            
             foreach (DataRow row in dt.Rows)
             {
                 for (var j=1; j<dt.Columns.Count; j++) {
                     dtRow.Add(row[j].ToString());
                 }
 
-                dtTable.Add(string.Join("|**|", dtRow.ToArray()));
+                dtTable.Add(string.Join("{@column@}", dtRow.ToArray()));
             }
 
-            string str = ">>>>" + string.Join("@&&@", dtTable.ToArray());
+            string head = (sn + "{@head@}");
+            string str = ">>>>" + head + string.Join("{@row@}", dtTable.ToArray());
 
             txtDebug.Text = str;
 

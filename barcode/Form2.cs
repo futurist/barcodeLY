@@ -12,7 +12,7 @@ using System.Data.SqlTypes;
 using System.Data.SqlClient;
 using System.Threading;
 using System.Text.RegularExpressions;
-
+using System.Runtime.Serialization;
 
 namespace barcode
 {
@@ -53,8 +53,18 @@ namespace barcode
             inter2.Tick += delegate { checkData(); };
             inter2.Enabled = true;
 
+            this.Closing += exitApp;
 
+        }
 
+        public void exitApp() {
+            inter2.Enabled = false;
+            WinCE.createMemFile("EXIT");
+            Application.Exit();
+        }
+
+        public void exitApp(object obj, EventArgs e) {
+            exitApp();
         }
 
         public void debug(string str) {
@@ -82,13 +92,22 @@ namespace barcode
                 WinCE.createMemFile("OK");
                 sql = data.Substring(4);
                 debug("Get:"+sql);
-                string [] lines = Regex.Split(sql, "@&&@");
-                Data.dataListSN2.Add(lines[0], sql);
-                if (lines[0]==Data.curSN) updateLV2(sql);
+                string [] lines = Regex.Split(sql, "{@head@}");
+                string sn = lines[0];
+                sql = lines[1];
+                Data.dataListSN2.Add(sn, sql);
+                debug(sn + "," + sn.Length.ToString() + "," + Data.curSN + " " + Data.curSN.Length.ToString() + " " + (sn == Data.curSN).ToString());
+                if (sn==Data.curSN) updateLV2(sn, sql);
                 return;
             }
 
-            debug(Data.putBuffer + " " + data);
+            if (data == "EXIT")
+            {
+                exitApp();
+                return;
+            }
+
+            debug(data);
         }
 
 
@@ -143,7 +162,7 @@ namespace barcode
             }
             else 
             {
-                updateLV2( Data.dataListSN2[ sn ] );
+                updateLV2(sn, Data.dataListSN2[ sn ] );
             }
             
         }
@@ -209,13 +228,17 @@ mmInDtl.sFabricNo as sFabricNo
         }
 
 
-        public void updateLV2(string sql)
+        public void updateLV2(string sn, string sql)
         {
-            string[] lines = Regex.Split(sql, "@&&@");
-            string sn = lines[0];
-            for (var i = 1; i < lines.Length; i++) {
+            string[] lines = Regex.Split(sql, "{@row@}");
 
-                string[] row = Regex.Split(lines[i], "|**|");
+            debug("updateLV2:"+sn+" "+lines.Length.ToString() );
+
+            lv.Items.Clear();
+
+            for (var i = 0; i < lines.Length; i++) {
+
+                string[] row = Regex.Split(lines[i], "{@column@}");
 
                 ListViewItem item = new ListViewItem(row[0].ToString());
 
@@ -255,7 +278,7 @@ mmInDtl.sFabricNo as sFabricNo
                     break;
                 case "Escape":
                     textBox1.Text = "";
-                    Application.Exit();
+                    exitApp();
                     break;
             }
 
