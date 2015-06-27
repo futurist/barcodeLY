@@ -19,22 +19,21 @@ namespace sqlmonitor
         {
             InitializeComponent();
 
-            //this.TopMost = false;
+            this.TopMost = true;
             //this.FormBorderStyle = FormBorderStyle.None;
             //this.WindowState = FormWindowState.Maximized;
 
 
             //textBox1.Text = (WinCE.readMemFile());
             
-            //launchApp();
+            launchApp();
 
-            WinCE.createMemFile("82937498723974");
             WinCE.createMemFile("OK");
 
             //getDataAsync("P1506160166");
 
             inter1.Enabled = false;
-            inter1.Interval = 100; // 1 second
+            inter1.Interval = 1000; // 1 second
             inter1.Tick += delegate { checkData(); };
             inter1.Enabled = true;
 
@@ -55,13 +54,15 @@ namespace sqlmonitor
 
             if (data.StartsWith("<<<<") && Data.curSN=="")
             {
-                debug("data: "+ data);
+                debug(data);
                 //WinCE.createMemFile("OK");
                 SN = data.Substring(4);
+                debug(SN);
                 getDataAsync(SN);
                 return;
             }
 
+            txtDebug.Text = data;
             //txtDebug.Text = (data == "").ToString();
             //if (data.Length > 0) txtDebug.Text += (data == "OK").ToString() + data + ": " + ((int)data[0]).ToString() + " " + ((int)data[data.Length - 1]).ToString();
     
@@ -74,7 +75,7 @@ namespace sqlmonitor
 
         public void launchApp() {
 
-            MobileLaunch.LaunchApp("\\Program Files\\smartdeviceproject1\\SmartDeviceProject1.exe", "");
+            MobileLaunch.LaunchApp("\\Program Files\\barcode\\barcode.exe", "");
 
         }
 

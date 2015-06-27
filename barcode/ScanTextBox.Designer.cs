@@ -1,4 +1,4 @@
-﻿namespace SmartDeviceProject1
+﻿namespace barcode
 {
     partial class ScanTextBox
     {

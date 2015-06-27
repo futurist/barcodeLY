@@ -38,7 +38,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoScroll = true;
             this.ClientSize = new System.Drawing.Size(298, 175);
-            this.Menu = this.mainMenu1;
             this.Name = "Form2";
             this.Text = "Form2";
             this.ResumeLayout(false);

@@ -1,9 +1,9 @@
 ﻿using System;
-
+using System.Linq;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace SmartDeviceProject1
+namespace barcode
 {
     static class Program
     {

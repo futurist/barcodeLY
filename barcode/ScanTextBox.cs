@@ -6,10 +6,10 @@ using System.Text;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using Neolix.Device;
-using SmartDeviceProject1.Properties;
+using barcode.Properties;
 using Neolix.WinCE.Common;
 
-namespace SmartDeviceProject1
+namespace barcode
 {
     public delegate bool InputCheck(string code);
     public delegate string PreInputCheck(string code);
@@ -31,7 +31,7 @@ namespace SmartDeviceProject1
             EventHandler handler = ScanFinish;
             if (handler != null)
             {
-                SmartDeviceProject1.Form1.MethodInvoker mi = delegate
+                barcode.Form1.MethodInvoker mi = delegate
                 {
                     handler(this, e);
                 };
@@ -108,7 +108,7 @@ namespace SmartDeviceProject1
 
         private void ScanerDataReceived(object sender, string code)
         {
-            SmartDeviceProject1.Form1.MethodInvoker mi = delegate
+            barcode.Form1.MethodInvoker mi = delegate
             {
                 int maxlen = MaxLength;
                 if (maxlen == 13)

@@ -14,7 +14,7 @@ using System.Threading;
 using System.Text.RegularExpressions;
 
 
-namespace SmartDeviceProject1
+namespace barcode
 {
     public partial class Form2 : Form
     {
@@ -22,6 +22,7 @@ namespace SmartDeviceProject1
         public folderClass folder = Data.folderList[Data.folderIndex];
         public System.Windows.Forms.Timer inter1 = new System.Windows.Forms.Timer();
         public System.Windows.Forms.Timer inter2 = new System.Windows.Forms.Timer();
+        public int count = 0;
 
         public Form2()
         {
@@ -43,9 +44,9 @@ namespace SmartDeviceProject1
 
 
             //textBox2.Text = (WinCE.readMemFile());
-
+            
             inter2.Enabled = false;
-            inter2.Interval = 100; // 1 second
+            inter2.Interval = 1000; // 1 second
             inter2.Tick += delegate { checkData(); };
             inter2.Enabled = true;
 
@@ -60,9 +61,9 @@ namespace SmartDeviceProject1
             string sql;
             string data = (WinCE.readMemFile());
 
-            if (data.StartsWith("11OK") && Data.putBuffer != "") {
+            if (data=="OK" && Data.putBuffer != "") {
                 txtDebug.Text = Data.putBuffer;
-                WinCE.createMemFile("11<<<<" + Data.putBuffer);
+                WinCE.createMemFile("<<<<" + Data.putBuffer);
                 Data.putBuffer = "";
                 return;
             }
@@ -71,7 +72,7 @@ namespace SmartDeviceProject1
             {
                 WinCE.createMemFile("OK");
                 sql = data.Substring(4);
-                string [] lines = Regex.Split(sql, "@@@@");
+                string [] lines = Regex.Split(sql, "@&&@");
                 Data.dataListSN2.Add(lines[0], sql);
                 if (lines[0]==Data.curSN) updateLV2(sql);
                 return;
@@ -86,7 +87,7 @@ namespace SmartDeviceProject1
                  d += ((int)array[i]).ToString() + " ";
             }
 
-            txtDebug.Text = d;
+            txtDebug.Text = data.Length.ToString() + " "+ data ;
         }
 
 

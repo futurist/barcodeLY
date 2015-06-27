@@ -1,4 +1,4 @@
-﻿namespace SmartDeviceProject1
+﻿namespace barcode
 {
     partial class Form2
     {
@@ -211,7 +211,6 @@
             this.Controls.Add(this.panel1);
             this.Name = "Form2";
             this.Text = "Form2";
-            this.TopMost = true;
             this.Load += new System.EventHandler(this.Form2_Load);
             this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);

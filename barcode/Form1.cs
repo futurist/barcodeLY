@@ -8,7 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using Neolix.Device;
 
-namespace SmartDeviceProject1
+namespace barcode
 {
 
     public partial class Form1 : Form

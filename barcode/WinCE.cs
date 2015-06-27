@@ -6,7 +6,7 @@ using System.Windows.Forms;
 using System.Text.RegularExpressions;
 using System.Globalization;
 
-namespace SmartDeviceProject1
+namespace barcode
 {
     /*
      * HANDLE = IntPtr
@@ -228,8 +228,8 @@ namespace SmartDeviceProject1
 
         const string MapName = "HSLY_SQL_FILE";
         const int MapSize = 1024 * 1024;
-        static IntPtr m_pMapFile = IntPtr.Zero;
-        static IntPtr m_pBuff = IntPtr.Zero;
+        static IntPtr m_pMapFile= IntPtr.Zero;
+        static IntPtr m_pBuff= IntPtr.Zero;
 
 
         public static void createMemFile(string str)
@@ -237,7 +237,7 @@ namespace SmartDeviceProject1
 
             //str = str.Replace("+", " ");
             //str = Regex.Replace(str, "%([A-Fa-f\\d]{2})", a => "" + Convert.ToChar(Convert.ToInt32(a.Groups[1].Value, 16)));
-
+            
             //Regex rx = new Regex(@"\\[uU]([0-9A-F]{4})");
             //str = rx.Replace(str, delegate(Match match) { return ((char)Int32.Parse(match.Value.Substring(2), NumberStyles.HexNumber)).ToString(); });
 
@@ -261,12 +261,16 @@ namespace SmartDeviceProject1
                 //FillMemory(m_pBuff, MapSize, 0);
 
                 // String to byte array
-                byte[] t_bData = Encoding.UTF8.GetBytes(str);
-                byte[] Zero = { 0, 0, 0, 0, 0, 0, 0, 0 };
-                // write data to map file
-                Marshal.Copy(t_bData, 0, m_pBuff, t_bData.Length);
-                Marshal.Copy(Zero, t_bData.Length, m_pBuff, Zero.Length);
+                byte[] x = Encoding.UTF8.GetBytes(str);
+                byte[] y = { 0,0,0,0, 0,0,0,0 };
 
+                var z = new byte[x.Length + y.Length];
+                x.CopyTo(z, 0);
+                y.CopyTo(z, x.Length);
+
+                // write data to map file
+                Marshal.Copy(z, 0, m_pBuff, z.Length);
+                
             }
             catch (Exception ex)
             {
@@ -299,7 +303,6 @@ namespace SmartDeviceProject1
                 Marshal.Copy(m_pBuff, bytData, 0, MapSize);
                 // change byte array to string
 
-
                 int i;
                 for (i = 0; i < MapSize; ++i)
                 {
@@ -307,10 +310,10 @@ namespace SmartDeviceProject1
                     {
                         if ((bytData[i + 1] | bytData[i + 2] | bytData[i + 3] |
                             bytData[i + 4] | bytData[i + 5] | bytData[i + 6] | bytData[i + 7]) == 0)
-                            break;
+                        break;
                     }
                 }
-
+                
                 string RetVal = Encoding.UTF8.GetString(bytData, 0, i);
                 // RetVal = Regex.Split(RetVal, "!!!!")[0];
                 return RetVal;
@@ -332,12 +335,12 @@ namespace SmartDeviceProject1
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                //MessageBox.Show(ex.Message);
             }
         }
 
 
 
-
+    
     }
 }

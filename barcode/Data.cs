@@ -8,7 +8,7 @@ using System.Data.SqlClient;
 using System.Windows.Forms;
 using System.CodeDom.Compiler;
 
-namespace SmartDeviceProject1
+namespace barcode
 {
     class Data
     {

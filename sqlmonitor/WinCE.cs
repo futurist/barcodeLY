@@ -261,17 +261,21 @@ namespace sqlmonitor
                 //FillMemory(m_pBuff, MapSize, 0);
 
                 // String to byte array
-                byte[] t_bData = Encoding.UTF8.GetBytes(str);
-                byte[] Zero = { 0,0,0,0, 0,0,0,0 };
+                byte[] x = Encoding.UTF8.GetBytes(str);
+                byte[] y = { 0,0,0,0, 0,0,0,0 };
+
+                var z = new byte[x.Length + y.Length];
+                x.CopyTo(z, 0);
+                y.CopyTo(z, x.Length);
+
                 // write data to map file
-                Marshal.Copy(t_bData, 0, m_pBuff, t_bData.Length);
-                Marshal.Copy(Zero, t_bData.Length, m_pBuff, Zero.Length);
+                Marshal.Copy(z, 0, m_pBuff, z.Length);
 
             }
             catch (Exception ex)
             {
                 t_i4Error = Marshal.GetLastWin32Error();
-                //MessageBox.Show("writeMemFile Err: " + ex.Message+ "\n" + ex.StackTrace);
+                MessageBox.Show("writeMemFile Err: " + ex.Message+ "\n" + ex.StackTrace);
             }
         }
 
@@ -304,8 +308,8 @@ namespace sqlmonitor
                 {
                     if (bytData[i] == 0)
                     {
-                        if ( (bytData[i + 1] | bytData[i + 2] | bytData[i + 3] |
-                            bytData[i + 4] | bytData[i + 5] | bytData[i + 6] | bytData[i + 7]) == 0 )
+                        if ((bytData[i + 1] | bytData[i + 2] | bytData[i + 3] |
+                            bytData[i + 4] | bytData[i + 5] | bytData[i + 6] | bytData[i + 7]) == 0)
                         break;
                     }
                 }

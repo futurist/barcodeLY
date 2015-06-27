@@ -43,10 +43,10 @@
             // 
             // txtDebug
             // 
-            this.txtDebug.Location = new System.Drawing.Point(44, 42);
+            this.txtDebug.Location = new System.Drawing.Point(0, 2);
             this.txtDebug.Multiline = true;
             this.txtDebug.Name = "txtDebug";
-            this.txtDebug.Size = new System.Drawing.Size(199, 107);
+            this.txtDebug.Size = new System.Drawing.Size(121, 42);
             this.txtDebug.TabIndex = 1;
             // 
             // Form1
@@ -54,10 +54,9 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(298, 195);
+            this.ClientSize = new System.Drawing.Size(137, 62);
             this.Controls.Add(this.txtDebug);
             this.Controls.Add(this.label1);
-            this.Menu = this.mainMenu1;
             this.Name = "Form1";
             this.Text = "Form1";
             this.ResumeLayout(false);
