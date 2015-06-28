@@ -16,7 +16,12 @@ namespace barcode
         public static int folderIndex = -1;
 
         public static List<codeClass> codeList = new List<codeClass> { };
-        public static int codeIndex = -1;
+        public static codeClass getCodeFromList(string id) {
+            foreach (var c in codeList) {
+                if (c.Id == id) return c;
+            }
+            return null;
+        }
 
         public static Dictionary<string, Form2> formList = new Dictionary<string, Form2>();
 
@@ -43,6 +48,116 @@ namespace barcode
 
     }
 
+
+    public class folderClass
+    {
+        public string Id { get; set; }
+        public string Text { get; set; }
+        public string Code { get; set; }
+        public int TotalRoll { get; set; }
+
+        public folderClass(string id, string text)
+        {
+            this.Id = id;
+            this.Text = text;
+            this.Code = "";
+        }
+        public folderClass(string id)
+        {
+            this.Id = id;
+            this.Text = "";
+            this.Code = "";
+        }
+        public override string ToString()
+        {
+            return Id + (Text != "" ? ":" + Text : "") + (Code != "" ? ":" + Code : "");
+        }
+    }
+
+    public class codeClass
+    {
+        public string Id { get; set; }
+        public string OrderNo { get; set; }
+        public string Folder { get; set; }
+        public bool IsPackage { get; set; }
+        public List<rollClass> Rolls { get; set; }
+
+        public codeClass(string id, string folder)
+        {
+            this.Id = id;
+            this.OrderNo = "";
+            this.Folder = folder;
+            this.Rolls = new List<rollClass>{};
+            this.IsPackage = id.StartsWith("P", StringComparison.CurrentCultureIgnoreCase);
+        }
+
+        public override string ToString()
+        {
+            var orderNO = this.OrderNo==""? "----"  :  ( this.IsPackage ? String.Format("{0,4}", OrderNo) : "*" + String.Format("{0,3}", OrderNo) );
+            var rollNO = (IsPackage ? ":" + Rolls.Count.ToString() : "");
+
+            
+            string detail = "";
+            string MaxKey = "";
+            int MaxVal = 1;
+            
+            Dictionary<string, int> dict = new Dictionary<string, int> { };
+            if (IsPackage && Rolls.Count > 0) {
+                foreach (var r in Rolls) { 
+                    if( dict.ContainsKey(r.sCode) ){
+                        dict.Add(r.sCode,1);
+                    }else{
+                        dict[r.sCode]++;
+                    }
+                    if (dict[r.sCode] > MaxVal) {
+                        MaxVal = dict[r.sCode];
+                        MaxKey = r.sCode;
+                    }
+                }
+
+                detail = "-" + MaxKey + "("+ MaxVal +")" + (dict.Keys.Count>1 ? "..." : "" );
+            }
+
+
+
+            return orderNO + ":" + Id + rollNO + detail;
+        }
+    }
+
+
+    public class rollClass {
+        public int iFabricOrder { get; set; }
+        public int iPackageOrder { get; set; }
+        public string sCode { get; set; }
+        public string sName { get; set; }
+        public string sColorNo { get; set; }
+        public double nPrice { get; set; }
+        public string sBatch { get; set; }
+        public string sWidth { get; set; }
+        public string sUnit { get; set; }
+        public double nWeight { get; set; }
+        public double nQty { get; set; }
+        public string sFabricNo { get; set; }
+
+        public rollClass(string[] row)
+        {
+
+            this.sCode = row[0];
+            this.sName = row[1];
+            this.sColorNo = row[2];
+            this.nPrice = Convert.ToDouble(row[3]);
+            this.sBatch = row[4];
+            this.sWidth = row[5];
+            this.sUnit = row[6];
+            this.nWeight = string.IsNullOrEmpty( row[7])? 0 : Convert.ToDouble(row[7]);
+            this.nQty = string.IsNullOrEmpty(row[8]) ? 0 : Convert.ToDouble(row[8]);
+            this.sFabricNo = row[9];
+            this.iFabricOrder = string.IsNullOrEmpty(row[10]) ? 0 : Convert.ToInt16(row[10]);
+            this.iPackageOrder = string.IsNullOrEmpty(row[11]) ? 0 : Convert.ToInt16(row[11]);
+        
+        }
+
+    }
 
     public class DB {
 
@@ -280,61 +395,6 @@ namespace barcode
     }
 
 
-
-
-    public class folderClass
-    {
-        public string Id { get; set; }
-        public string Text { get; set; }
-        public string Code { get; set; }
-        public int TotalRoll { get; set; }
-
-        public folderClass(string id, string text)
-        {
-            this.Id = id;
-            this.Text = text;
-            this.Code = "";
-        }
-        public folderClass(string id)
-        {
-            this.Id = id;
-            this.Text = "";
-            this.Code = "";
-        }
-        public override string ToString()
-        {
-            return Id + (Text != "" ? ":" + Text : "") + (Code != "" ? ":" + Code : "");
-        }
-    }
-
-    public class codeClass
-    {
-        public string Id { get; set; }
-        public string NO { get; set; }
-        public string Parent { get; set; }
-        public int RollNum { get; set; }
-
-        public codeClass(string id, string parent)
-        {
-            this.Id = id;
-            this.NO = "   　";
-            this.Parent = parent;
-            this.RollNum = 0;
-            
-        }
-
-        public codeClass(string id)
-        {
-            this.Id = id;
-            this.NO = "   　";
-            this.Parent = "";
-            this.RollNum = 0;
-        }
-        public override string ToString()
-        {
-            return Id + (Parent != "" ? ":" + Parent : "") + (RollNum > 0 ? ":" + RollNum.ToString() : "");
-        }
-    }
 
 
 

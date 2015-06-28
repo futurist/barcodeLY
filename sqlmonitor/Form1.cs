@@ -56,7 +56,7 @@ namespace sqlmonitor
             
             string data = (WinCE.readMemFile());
 
-            if (data == "EXIT")
+            if (data == "EXIT222")
             {
                 debug("EXIT");
                 commExited = true;
@@ -161,14 +161,14 @@ namespace sqlmonitor
         public void getData(string sn)
         {
             DataTable dt = null;
-            
 
+            string wh = sn.StartsWith("P", StringComparison.CurrentCultureIgnoreCase) ? " mmindtl.sPackageNo='" + sn + "'" : " mmindtl.sFabricNo='" + sn + "'";
             try
             {
                 dt = DB.Query(
                     @"select 
-sdOrderHdr.sMaterialDesc as sCode, 
-mmMaterial.sMaterialName as sName, 
+sdOrderHdr.sMaterialDesc as sCode,
+mmMaterial.sMaterialName as sName,
 mmInDtl.sColorNo as sColorNo, 
 mmInDtl.nACPrice as nPrice,
 mmInDtl.sBatchNo as sBatch, 
@@ -176,11 +176,13 @@ mmFabric.sFactWidth as sWidth,
 mmFabric.sUnit as sUnit, 
 mmFabric.nNetWeight as nWeight,
 mmFabric.nQty as nQty,
-mmInDtl.sFabricNo as sFabricNo 
+mmInDtl.sFabricNo as sFabricNo,
+mmInDtl.iFabricOrder as iFabricOrder,
+mmInDtl.iPackageOrder as iPackageOrder
                 from mmInDtl 
                 left join mmFabric on mmFabric.sFabricNo = mmInDtl.sFabricNo 
                 left join sdOrderHdr on sdOrderHdr.sOrderNo = mmInDtl.sOrderNo 
-                left join mmMaterial on mmMaterial.uGUID = mmInDtl.ummMaterialGUID where mmindtl.sPackageNo='" + sn + "'"
+                left join mmMaterial on mmMaterial.uGUID = mmInDtl.ummMaterialGUID where "+wh
                 );
             }
             catch (Exception e) {

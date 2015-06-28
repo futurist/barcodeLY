@@ -14,6 +14,7 @@ using System.Threading;
 using System.Text.RegularExpressions;
 using System.Runtime.Serialization;
 
+
 namespace barcode
 {
     public partial class Form2 : Form
@@ -85,7 +86,7 @@ namespace barcode
             string sql;
             string data = (WinCE.readMemFile());
 
-            if (data == "EXIT")
+            if (data == "EXIT222")
             {
                 debug("EXIT");
                 commExited = true;
@@ -178,6 +179,7 @@ namespace barcode
 
         public void getData( ) {
 
+            string wh = Data.curSN.StartsWith("P", StringComparison.CurrentCultureIgnoreCase) ? " mmindtl.sPackageNo='" + Data.curSN + "'" : " mmindtl.sFabricNo='" + Data.curSN + "'";
             DataTable dt = DB.Query(
                 @"select 
 sdOrderHdr.sMaterialDesc as sCode,
@@ -189,11 +191,13 @@ mmFabric.sFactWidth as sWidth,
 mmFabric.sUnit as sUnit, 
 mmFabric.nNetWeight as nWeight,
 mmFabric.nQty as nQty,
-mmInDtl.sFabricNo as sFabricNo 
+mmInDtl.sFabricNo as sFabricNo,
+mmInDtl.iFabricOrder as iFabricOrder,
+mmInDtl.iPackageOrder as iPackageOrder
                 from mmInDtl 
                 left join mmFabric on mmFabric.sFabricNo = mmInDtl.sFabricNo 
                 left join sdOrderHdr on sdOrderHdr.sOrderNo = mmInDtl.sOrderNo 
-                left join mmMaterial on mmMaterial.uGUID = mmInDtl.ummMaterialGUID where mmindtl.sPackageNo='"+ Data.curSN +"'"
+                left join mmMaterial on mmMaterial.uGUID = mmInDtl.ummMaterialGUID where " + wh
             );
 
             if (object.ReferenceEquals(null, dt)) return;
@@ -245,11 +249,20 @@ mmInDtl.sFabricNo as sFabricNo
 
             lv.Items.Clear();
 
+            var thePack = Data.getCodeFromList(sn);
+
             for (var i = 0; i < lines.Length; i++) {
 
+                
                 string[] row = Regex.Split(lines[i], "{@column@}");
 
                 if (row.Length < 10) continue;
+
+                if (i == 0) {
+                    thePack.OrderNo = sn.StartsWith("P", StringComparison.CurrentCultureIgnoreCase) ? row[11] : row[10];
+                }
+
+                thePack.Rolls.Add( new rollClass(row) );
 
                 ListViewItem item = new ListViewItem(row[0].ToString());
 
@@ -265,6 +278,8 @@ mmInDtl.sFabricNo as sFabricNo
 
                 lv.Items.Add(item);
             }
+
+            updateLisBox();
 
         }
 
@@ -378,7 +393,7 @@ mmInDtl.sFabricNo as sFabricNo
                 return;
             }
 
-            Data.codeList.Add(code);
+            Data.codeList.Insert(0,code);
 
             updateLisBox();
 
@@ -391,7 +406,7 @@ mmInDtl.sFabricNo as sFabricNo
             addLisBox(new codeClass( textBox1.Text, folder.Id ));
             //textBox1.Focus();
             textBox1.Text = "";
-            listBox1.SelectedIndex = Data.codeList.Count - 1;
+            listBox1.SelectedIndex = 0;
             textBox1.Focus();
             
         }
@@ -418,8 +433,12 @@ mmInDtl.sFabricNo as sFabricNo
             listBox1.DataSource = Data.codeList;
             listBox1.Enabled = true;
 
-            listBox1.SelectedIndex = prevIndex >= 0 && prevIndex < Data.codeList.Count ? prevIndex : Data.codeList.Count - 1;
-            
+            try
+            {
+                listBox1.SelectedIndex = prevIndex >= 0 && prevIndex < Data.codeList.Count ? prevIndex : 0;
+            }catch(Exception e){
+                
+            }
         }
 
         public bool checkDuplicate(string ID)

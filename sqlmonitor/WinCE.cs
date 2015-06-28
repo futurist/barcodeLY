@@ -275,7 +275,7 @@ namespace sqlmonitor
             catch (Exception ex)
             {
                 t_i4Error = Marshal.GetLastWin32Error();
-                MessageBox.Show("writeMemFile Err: " + ex.Message+ "\n" + ex.StackTrace);
+                //MessageBox.Show("writeMemFile Err: " + ex.Message+ "\n" + ex.StackTrace);
             }
         }
 
@@ -335,7 +335,7 @@ namespace sqlmonitor
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                //MessageBox.Show(ex.Message);
             }
         }
 

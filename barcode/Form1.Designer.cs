@@ -50,7 +50,7 @@
             // 
             this.textBox1.Location = new System.Drawing.Point(40, 5);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(207, 23);
+            this.textBox1.Size = new System.Drawing.Size(184, 23);
             this.textBox1.TabIndex = 0;
             this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             this.textBox1.GotFocus += new System.EventHandler(this.textBox1_GotFocus);
@@ -58,9 +58,9 @@
             // 
             // listBox1
             // 
-            this.listBox1.Location = new System.Drawing.Point(13, 54);
+            this.listBox1.Location = new System.Drawing.Point(10, 54);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(291, 114);
+            this.listBox1.Size = new System.Drawing.Size(220, 114);
             this.listBox1.TabIndex = 1;
             this.listBox1.EnabledChanged += new System.EventHandler(this.listBox1_EnabledChanged);
             this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
@@ -71,9 +71,9 @@
             this.panel1.Controls.Add(this.label2);
             this.panel1.Controls.Add(this.textBox1);
             this.panel1.Controls.Add(this.btnAdd);
-            this.panel1.Location = new System.Drawing.Point(14, 9);
+            this.panel1.Location = new System.Drawing.Point(6, 9);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(267, 33);
+            this.panel1.Size = new System.Drawing.Size(232, 33);
             // 
             // label2
             // 
@@ -98,15 +98,15 @@
             this.panel2.Controls.Add(this.label1);
             this.panel2.Controls.Add(this.btnCancel);
             this.panel2.Controls.Add(this.btnModify);
-            this.panel2.Location = new System.Drawing.Point(13, -13);
+            this.panel2.Location = new System.Drawing.Point(5, -13);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(268, 32);
+            this.panel2.Size = new System.Drawing.Size(233, 32);
             // 
             // textBox2
             // 
             this.textBox2.Location = new System.Drawing.Point(68, 3);
             this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(180, 23);
+            this.textBox2.Size = new System.Drawing.Size(157, 23);
             this.textBox2.TabIndex = 0;
             this.textBox2.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox2_KeyDown);
             // 
@@ -140,16 +140,16 @@
             // lblDuplicate
             // 
             this.lblDuplicate.Font = new System.Drawing.Font("Arial", 18F, System.Drawing.FontStyle.Underline);
-            this.lblDuplicate.Location = new System.Drawing.Point(28, 77);
+            this.lblDuplicate.Location = new System.Drawing.Point(21, 77);
             this.lblDuplicate.Name = "lblDuplicate";
-            this.lblDuplicate.Size = new System.Drawing.Size(257, 65);
+            this.lblDuplicate.Size = new System.Drawing.Size(199, 65);
             this.lblDuplicate.TabIndex = 6;
             this.lblDuplicate.Text = "已存在";
             this.lblDuplicate.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // btnUpload
             // 
-            this.btnUpload.Location = new System.Drawing.Point(107, 174);
+            this.btnUpload.Location = new System.Drawing.Point(46, 186);
             this.btnUpload.Name = "btnUpload";
             this.btnUpload.Size = new System.Drawing.Size(105, 32);
             this.btnUpload.TabIndex = 9;
@@ -157,7 +157,7 @@
             // 
             // lblStatus
             // 
-            this.lblStatus.Location = new System.Drawing.Point(218, 175);
+            this.lblStatus.Location = new System.Drawing.Point(157, 187);
             this.lblStatus.Name = "lblStatus";
             this.lblStatus.Size = new System.Drawing.Size(31, 20);
             this.lblStatus.Text = "NC!!";
@@ -167,7 +167,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(318, 215);
+            this.ClientSize = new System.Drawing.Size(238, 295);
             this.Controls.Add(this.lblStatus);
             this.Controls.Add(this.btnUpload);
             this.Controls.Add(this.lblDuplicate);
