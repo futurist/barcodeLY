@@ -16,6 +16,8 @@ namespace sqlmonitor
         public System.Windows.Forms.Timer inter1 = new System.Windows.Forms.Timer();
         public string prevDebugStr = "";
 
+        public bool commExited = false;
+
         public Form1()
         {
             InitializeComponent();
@@ -27,7 +29,7 @@ namespace sqlmonitor
 
             //textBox1.Text = (WinCE.readMemFile());
             
-            launchApp();
+            //launchApp();
 
 
             WinCE.createMemFile("OK");
@@ -54,6 +56,14 @@ namespace sqlmonitor
             
             string data = (WinCE.readMemFile());
 
+            if (data == "EXIT")
+            {
+                debug("EXIT");
+                commExited = true;
+                exitApp();
+                return;
+            }
+
             if (data.StartsWith(">>>>")) return;
 
             if (data == "OK" && Data.putBuffer != "" && Data.prevPutBuffer!=Data.putBuffer )
@@ -73,10 +83,6 @@ namespace sqlmonitor
                 return;
             }
 
-            if (data == "EXIT") {
-                exitApp();
-                return;
-            }
 
             debug(Data.curSN+" "+ data);
             //txtDebug.Text = (data == "").ToString();
@@ -96,7 +102,9 @@ namespace sqlmonitor
         public void exitApp() {
             inter1.Enabled = false;
             WinCE.createMemFile("EXIT");
-            MobileLaunch.exitApp();
+            if (commExited) WinCE.closeMemFile();
+            //MobileLaunch.exitApp();
+            Application.Exit();
         }
 
         private void exitApp(object sender, EventArgs e) {

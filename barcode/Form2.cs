@@ -22,11 +22,11 @@ namespace barcode
         public folderClass folder = Data.folderList[Data.folderIndex];
         public System.Windows.Forms.Timer inter1 = new System.Windows.Forms.Timer();
         public System.Windows.Forms.Timer inter2 = new System.Windows.Forms.Timer();
+
         public int count = 0;
         public string prevDebugStr = "";
-        
-        private volatile bool _timerStop = false;
 
+        public bool commExited = false;
 
         public Form2()
         {
@@ -46,7 +46,6 @@ namespace barcode
             this.listBox1.DataSource = Data.codeList;
 
 
-
             //textBox2.Text = (WinCE.readMemFile());
             WinCE.createMemFile("OK");
 
@@ -62,7 +61,10 @@ namespace barcode
 
         public void exitApp() {
             inter2.Enabled = false;
+            inter2.Dispose();
             WinCE.createMemFile("EXIT");
+            if (commExited) WinCE.closeMemFile();
+            //this.Close();
             Application.Exit();
         }
 
@@ -80,9 +82,16 @@ namespace barcode
 
         public void checkData()
         {
-            if (!inter2.Enabled) return;
             string sql;
             string data = (WinCE.readMemFile());
+
+            if (data == "EXIT")
+            {
+                debug("EXIT");
+                commExited = true;
+                exitApp();
+                return;
+            }
 
             if (data.StartsWith("<<<<")) return;
 
@@ -104,12 +113,6 @@ namespace barcode
                 Data.dataListSN2.Add(sn, sql);
                 //debug(Data.curSN + " " + Data.curSN.Length.ToString());
                 if (sn==Data.curSN && !string.IsNullOrEmpty(sql) ) updateLV2(sn, sql);
-                return;
-            }
-
-            if (data == "EXIT")
-            {
-                exitApp();
                 return;
             }
 
