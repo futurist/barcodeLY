@@ -43,9 +43,11 @@
             // 
             // txtDebug
             // 
+            this.txtDebug.HideSelection = false;
             this.txtDebug.Location = new System.Drawing.Point(0, 2);
             this.txtDebug.Multiline = true;
             this.txtDebug.Name = "txtDebug";
+            this.txtDebug.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtDebug.Size = new System.Drawing.Size(121, 42);
             this.txtDebug.TabIndex = 1;
             // 

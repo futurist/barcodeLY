@@ -24,6 +24,9 @@ namespace barcode
         public System.Windows.Forms.Timer inter2 = new System.Windows.Forms.Timer();
         public int count = 0;
         public string prevDebugStr = "";
+        
+        private volatile bool _timerStop = false;
+
 
         public Form2()
         {
@@ -50,7 +53,7 @@ namespace barcode
 
             inter2.Enabled = false;
             inter2.Interval = 3000; // 1 second
-            inter2.Tick += delegate { checkData(); };
+            inter2.Tick += delegate { if (inter2.Enabled) checkData(); };
             inter2.Enabled = true;
 
             this.Closing += exitApp;
@@ -73,8 +76,11 @@ namespace barcode
             txtDebug.Text = str + "\r\n" + txtDebug.Text;
         }
 
+
+
         public void checkData()
         {
+            if (!inter2.Enabled) return;
             string sql;
             string data = (WinCE.readMemFile());
 
@@ -96,8 +102,8 @@ namespace barcode
                 string sn = lines[0];
                 sql = lines[1];
                 Data.dataListSN2.Add(sn, sql);
-                debug(sn + "," + sn.Length.ToString() + "," + Data.curSN + " " + Data.curSN.Length.ToString() + " " + (sn == Data.curSN).ToString());
-                if (sn==Data.curSN) updateLV2(sn, sql);
+                //debug(Data.curSN + " " + Data.curSN.Length.ToString());
+                if (sn==Data.curSN && !string.IsNullOrEmpty(sql) ) updateLV2(sn, sql);
                 return;
             }
 
@@ -239,6 +245,8 @@ mmInDtl.sFabricNo as sFabricNo
             for (var i = 0; i < lines.Length; i++) {
 
                 string[] row = Regex.Split(lines[i], "{@column@}");
+
+                if (row.Length < 10) continue;
 
                 ListViewItem item = new ListViewItem(row[0].ToString());
 
