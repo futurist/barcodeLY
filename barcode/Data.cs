@@ -27,6 +27,8 @@ namespace barcode
 
         public static string curSN = "";
         public static string prevSN = "";
+        public static string prevSN2 = "";
+        public static int prevID = 0;
 
         public static string putBuffer = "";
         public static string prevPutBuffer = "";
@@ -156,7 +158,7 @@ namespace barcode
                 orderNO = "!!!!";
             }else if (string.IsNullOrEmpty(this.OrderNo))
             { 
-                orderNO = this.IsPackage ? "****" : "----";
+                orderNO = this.IsPackage ?  "----" : "****";
             }
             else if ( Data.IsNumber(this.OrderNo) )
             {
@@ -190,8 +192,7 @@ namespace barcode
                 detail = "-" + MaxKey + (dict.Keys.Count > 1 ? "(" + MaxVal.ToString() + ")" + "..." : "");
             }
 
-            var rollNO = (this.IsPackage ? ":" + rollNum.ToString() : "");
-
+            var rollNO = (this.IsPackage ? ":[" + rollNum.ToString() + "]" : "");
 
             return orderNO + ":" + Id + rollNO + detail;
         }

@@ -33,24 +33,20 @@ namespace barcode
             //this.listBox1.DisplayMember = "Text";
             //this.listBox1.ValueMember = "Id";
             this.listBox1.DataSource = Data.folderList;
+
+            this.Activated += new EventHandler(Form1_Activated);
             
         }
-        Scaner scaner = new Scaner();
+
+        void Form1_Activated(object sender, EventArgs e)
+        {
+            updateLisBox();
+        }
 
        
         private void textBox1_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyValue == 133 || e.KeyValue == 134)
-            {
-                if (Environment.OSVersion.Platform == PlatformID.WinCE)
-                {
-                    scaner.Open();
-                    scaner.ScanerDataReceived += ScanerDataReceived;
-                    scaner.Read();
-                    //Scaner.Close();
-                }
-            }
-
+            
             switch(e.KeyCode.ToString()){
                 case "Return":
                     btnAdd_Click(sender, e);

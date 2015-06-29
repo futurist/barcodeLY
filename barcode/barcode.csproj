@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{F4E62785-2E12-4BBD-B581-1422A545295C}</ProjectGuid>
     <OutputType>WinExe</OutputType>
@@ -46,7 +46,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
-    <Reference Include="Neolix.Device.X3, Version=1.0.4511.35546, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="Neolix.Device.HHT, Version=1.0.5658.32188, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="Neolix.WinCE.Common, Version=1.1.0.3, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="OpenNETCF, Version=2.3.0.39, Culture=neutral, PublicKeyToken=e60dbea84bb431b7, processorArchitecture=MSIL" />
     <Reference Include="System" />
@@ -93,12 +93,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="ScanTextBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="ScanTextBox.Designer.cs">
-      <DependentUpon>ScanTextBox.cs</DependentUpon>
-    </Compile>
     <Compile Include="WinCE.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -111,7 +105,7 @@
     <Content Include="log4net.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Neolix.Device.X3.dll">
+    <Content Include="Neolix.Device.HHT.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Neolix.WinCE.Common.dll">

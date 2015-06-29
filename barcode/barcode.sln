@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "barcode", "barcode.csproj", "{F4E62785-2E12-4BBD-B581-1422A545295C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neolix.Device.HHT", "..\Neolix.Device.HHT\Neolix.Device.HHT.csproj", "{471AB28B-50AE-45ED-A9B4-96C21AD8AE11}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{F4E62785-2E12-4BBD-B581-1422A545295C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F4E62785-2E12-4BBD-B581-1422A545295C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F4E62785-2E12-4BBD-B581-1422A545295C}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{471AB28B-50AE-45ED-A9B4-96C21AD8AE11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{471AB28B-50AE-45ED-A9B4-96C21AD8AE11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{471AB28B-50AE-45ED-A9B4-96C21AD8AE11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{471AB28B-50AE-45ED-A9B4-96C21AD8AE11}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

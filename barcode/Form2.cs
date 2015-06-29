@@ -59,7 +59,7 @@ namespace barcode
             this.Closing += exitApp;
 
             txtDebug.Visible = false;
-
+            lv.Items.Clear();
         }
 
 
@@ -78,6 +78,7 @@ namespace barcode
         }
 
         public void debug(string str) {
+            if (!txtDebug.Visible) return;
             if (prevDebugStr == str) return;
             prevDebugStr = str;
             txtDebug.Text = str + "\r\n" + txtDebug.Text;
@@ -119,7 +120,7 @@ namespace barcode
                 string sn = lines[0];
                 sql = lines[1];
                 Data.dataListSN2.Add(sn, sql);
-
+                
                 updateLV2(sn, sql);
                 return;
             }
@@ -128,7 +129,7 @@ namespace barcode
         }
 
 
-        Scaner scaner = new Scaner();
+        
 
 
 
@@ -157,7 +158,8 @@ namespace barcode
             }
         }
 
-        public void loadSN(string sn) {
+        public void loadSN(string sn) 
+        {
 
 
             debug("loadSN: "+sn);
@@ -221,9 +223,10 @@ mmInDtl.iPackageOrder as iPackageOrder
 
             folder.TotalRoll += dt.Rows.Count;
 
-            lblNum.Text = "品种：" + Data.folderList[Data.folderIndex].TotalRoll.ToString();
+            lblFolder.Text = "品种：" + Data.folderList[Data.folderIndex].TotalRoll.ToString();
 
             updateLV(dt);
+            
         }
 
         public void updateLV(DataTable dt) {
@@ -243,22 +246,28 @@ mmInDtl.iPackageOrder as iPackageOrder
                 item.SubItems.Add(row["sColorNo"].ToString() + BatchNo);
                 item.SubItems.Add(num + row["sUnit"]);
                 item.SubItems.Add(row["sFabricNo"].ToString());
-
+                
                 lv.Items.Add(item);
 
             }
-
+            
             foreach (ColumnHeader col in lv.Columns)
             {
-                col.Width = -2;
+                
+                col.Width = -1;
             }
+
+            lv.Update();
 
         }
 
 
         public void updateLV2(string sn, string sql)
         {
-            
+
+            if ( Data.prevSN2==sn ) return;
+
+            Data.prevSN2 = sn;
 
             lv.Items.Clear();
 
@@ -308,28 +317,39 @@ mmInDtl.iPackageOrder as iPackageOrder
 
                     lv.Items.Add(item);
                 }
-            }    
+
+                foreach (ColumnHeader col in lv.Columns)
+                {
+
+                    col.Width = -1;
+                }
+
+            }
+
             updateLisBox();
+
+            lblFolder.Text = folder.ToString();
 
         }
 
 
         private void textBox1_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyValue == 133 || e.KeyValue == 134)
-            {
-                if (Environment.OSVersion.Platform == PlatformID.WinCE)
-                {
-                    textBox1.Focus();
-                    scaner.Open();
-                    scaner.ScanerDataReceived += ScanerDataReceived;
-                    scaner.Read();
-                    //Scaner.Close();
-                }
-            }
+            debug("Key:"+e.KeyValue.ToString()+" "+e.KeyCode.ToString() );
 
             switch (e.KeyCode.ToString())
             {
+                case "F1":
+                case "F4":
+                    textBox1.Focus();
+                    break;
+                case "F2":
+                    listBox1.Focus();
+                    break;
+                case "F3":
+                    lv.Focus();
+                    break;
+
                 case "Return":
                     btnAdd_Click(sender, e);
                     break;
@@ -356,16 +376,38 @@ mmInDtl.iPackageOrder as iPackageOrder
 
         private void listBox1_KeyDown(object sender, KeyEventArgs e)
         {
+
             var idx = listBox1.SelectedIndex;
             if (idx == -1) return;
 
+            if (e.KeyValue == 13 || e.KeyValue == 115)
+            {
+                textBox1.Focus();
+                e.Handled = true;
+
+                return;
+            }
             var val = (codeClass)listBox1.SelectedValue;
             var isDirty = false;
 
             //textBox1.Text = e.KeyCode.ToString();
+            debug( e.KeyValue.ToString() + " " + e.KeyCode.ToString());
 
             switch (e.KeyCode.ToString())
             {
+                case "F1":
+                case "F4":
+                case "Return":
+                    textBox1.Focus();
+                    break;
+                case "F2":
+                    listBox1.Focus();
+                    break;
+                case "F3":
+                    lv.Focus();
+                    break;
+
+
                 case "Delete":
                     Data.codeList.RemoveAt(idx);
                     isDirty = true;
@@ -375,14 +417,23 @@ mmInDtl.iPackageOrder as iPackageOrder
                     
 
                     break;
-                case "Return":
-                    if (listBox1.SelectedIndex == -1) return;
-                    e.Handled = true;
-                    break;
+
                 case "Tab":
                     textBox1.Focus();
                     e.Handled = true;
                     break;
+                case "Up":
+                case "Left":
+                    e.Handled = true;
+                    listBox1.SelectedIndex = Math.Max( listBox1.SelectedIndex-1, 0 );
+                    break;
+                case "Down":
+                case "Right":
+                    e.Handled = true;
+                    listBox1.SelectedIndex = Math.Min(listBox1.SelectedIndex + 1, listBox1.Items.Count-1 );
+                    break;
+
+
                 default:
                     
                     //isDirty = true;
@@ -458,6 +509,7 @@ mmInDtl.iPackageOrder as iPackageOrder
         public void updateLisBox()
         {
             var prevIndex = listBox1.SelectedIndex;
+            var prevFocus = listBox1.Focused;
 
             listBox1.Enabled = false;
             listBox1.DataSource = null;
@@ -470,6 +522,7 @@ mmInDtl.iPackageOrder as iPackageOrder
             }catch(Exception e){
                 
             }
+            if (prevFocus) listBox1.Focus();
         }
 
         public bool checkDuplicate(string ID)
@@ -627,7 +680,20 @@ mmInDtl.iPackageOrder as iPackageOrder
 
         private void lv_KeyDown(object sender, KeyEventArgs e)
         {
-            switch( e.KeyCode.ToString() ){
+            switch (e.KeyCode.ToString())
+            {
+                case "F1":
+                case "F4":
+                case "Return":
+                    textBox1.Focus();
+                    break;
+                case "F2":
+                    listBox1.Focus();
+                    break;
+                case "F3":
+                    lv.Focus();
+                    break;
+
                 case "Space":
                     Point pos = GetItemPosition(2);
                     if(pos.X<0)
@@ -636,10 +702,10 @@ mmInDtl.iPackageOrder as iPackageOrder
                         ScrollHorizontal(lv.Bounds.Width-40);
 
                     break;
-                case "D1":
+                case "Left":
                     ScrollHorizontal( - 200);
                     break;
-                case "D2":
+                case "Right":
                     ScrollHorizontal(200);
                     break;
 
@@ -662,6 +728,11 @@ mmInDtl.iPackageOrder as iPackageOrder
         public void showMsg(string str)
         {
             lblStatus.Text = str;
+        }
+
+        private void textBox1_ScanerDataReceivedEvent()
+        {
+            MessageBox.Show("SS");
         }
 
 
