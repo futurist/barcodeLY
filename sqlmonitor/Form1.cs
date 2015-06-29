@@ -56,9 +56,12 @@ namespace sqlmonitor
             
             string data = (WinCE.readMemFile());
 
-            if (data == "EXIT222")
+            if (data == "EXIT")
             {
                 debug("EXIT");
+                Data.prevPutBuffer = "";
+                return;
+                
                 commExited = true;
                 exitApp();
                 return;
@@ -186,9 +189,9 @@ mmInDtl.iPackageOrder as iPackageOrder
                 );
             }
             catch (Exception e) {
-                string str = "ERROR:" + e.Message;
-                MessageBox.Show(str);
-                //WinCE.createMemFile(str);
+                string str = "{@error@}" + e.Message;
+                //MessageBox.Show(str);
+                Data.putBuffer = str;
                 return;
             }
 
@@ -201,18 +204,16 @@ mmInDtl.iPackageOrder as iPackageOrder
         public void updateLV(string sn, DataTable dt) {
 
 
-            List<string> dtRow = new List<string> { };
             List<string> dtTable = new List<string> { };
-
-
             
             foreach (DataRow row in dt.Rows)
             {
+                List<string> dtRow = new List<string> { };
                 for (var j=0; j<dt.Columns.Count; j++) {
                     dtRow.Add(row[j].ToString());
                 }
 
-                dtTable.Add(string.Join("{@column@}", dtRow.ToArray()));
+                dtTable.Add( string.Join("{@column@}", dtRow.ToArray()) );
             }
 
             string head = (sn + "{@head@}");

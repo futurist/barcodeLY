@@ -250,7 +250,7 @@ namespace barcode
         }
 
         public void showForm2(string folderID) {
-            this.Hide();
+            //this.Hide();
             if (!Data.formList.ContainsKey(folderID))
             {
                 Data.formList.Add(folderID, new Form2() );

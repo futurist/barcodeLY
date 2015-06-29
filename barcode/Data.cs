@@ -26,6 +26,7 @@ namespace barcode
         public static Dictionary<string, Form2> formList = new Dictionary<string, Form2>();
 
         public static string curSN = "";
+        public static string prevSN = "";
 
         public static string putBuffer = "";
         public static string prevPutBuffer = "";
@@ -45,6 +46,18 @@ namespace barcode
             }
 
         }
+
+
+        /// <summary>  
+        /// 判读字符串是否为数值型。可以代正负号(+-) ikmb@163.com  
+        /// </summary>  
+        /// <param name="strNumber">字符串</param>  
+        /// <returns>是否</returns>  
+        public static bool IsNumber(string strNumber)
+        {
+            System.Text.RegularExpressions.Regex r = new System.Text.RegularExpressions.Regex(@"^\s*[+-]?\d+(\.)?\d*\s*$");
+            return r.IsMatch(strNumber);
+        } 
 
     }
 
@@ -70,9 +83,40 @@ namespace barcode
         }
         public override string ToString()
         {
+            int packNum=0;
+            int rollNum=0;
+            double lengthM=0;
+            double lengthYD = 0;
+            double lengthKG = 0;
+
+            foreach( var code in Data.codeList ){
+                if (code.Folder == this.Id) {
+                    packNum++;
+                    rollNum += code.Rolls.Count;
+                    foreach (var r in code.Rolls)
+                    {
+                        if (string.Equals(r.sUnit, "KG", StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            lengthKG += r.nQty;
+                        }
+                        if (r.sUnit.StartsWith("Y", StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            lengthYD += r.nQty;
+                        }
+                        if (r.sUnit.StartsWith("M", StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            lengthM += r.nQty;
+                        }
+                    }
+                }
+            }
+
+            Text = String.Format("[{0:0}][{1:0}][{2:0}M+{3:0}Y+{4:0}KG]", packNum, rollNum, lengthM, lengthYD, lengthKG );
+
             return Id + (Text != "" ? ":" + Text : "") + (Code != "" ? ":" + Code : "");
         }
     }
+
 
     public class codeClass
     {
@@ -91,20 +135,48 @@ namespace barcode
             this.IsPackage = id.StartsWith("P", StringComparison.CurrentCultureIgnoreCase);
         }
 
+        public void addRow(string []row) {
+            bool isNew = true;
+            foreach (var r in this.Rolls) {
+                if (r.sFabricNo == row[9])
+                {
+                    isNew = false;
+                    break;
+                }
+            }
+            if(isNew) this.Rolls.Add(new rollClass(row));
+        }
+
         public override string ToString()
         {
-            var orderNO = this.OrderNo==""? "----"  :  ( this.IsPackage ? String.Format("{0,4}", OrderNo) : "*" + String.Format("{0,3}", OrderNo) );
-            var rollNO = (IsPackage ? ":" + Rolls.Count.ToString() : "");
+            var orderNO="";
 
+            if ( object.ReferenceEquals(null, this.OrderNo))
+            {
+                orderNO = "!!!!";
+            }else if (string.IsNullOrEmpty(this.OrderNo))
+            { 
+                orderNO = this.IsPackage ? "****" : "----";
+            }
+            else if ( Data.IsNumber(this.OrderNo) )
+            {
+                orderNO = (this.IsPackage ? String.Format("{0,4}", OrderNo) : String.Format("{0,4}", OrderNo).Replace(" ", "*"));
+            }
+            else {
+                orderNO = this.OrderNo;
+            }
+
+            int rollNum = 0;
             
             string detail = "";
             string MaxKey = "";
-            int MaxVal = 1;
+            int MaxVal = 0;
             
             Dictionary<string, int> dict = new Dictionary<string, int> { };
             if (IsPackage && Rolls.Count > 0) {
-                foreach (var r in Rolls) { 
-                    if( dict.ContainsKey(r.sCode) ){
+                foreach (var r in Rolls) {
+                    rollNum++;
+                    if( !dict.ContainsKey(r.sCode) ){
                         dict.Add(r.sCode,1);
                     }else{
                         dict[r.sCode]++;
@@ -115,9 +187,10 @@ namespace barcode
                     }
                 }
 
-                detail = "-" + MaxKey + "("+ MaxVal +")" + (dict.Keys.Count>1 ? "..." : "" );
+                detail = "-" + MaxKey + (dict.Keys.Count > 1 ? "(" + MaxVal.ToString() + ")" + "..." : "");
             }
 
+            var rollNO = (this.IsPackage ? ":" + rollNum.ToString() : "");
 
 
             return orderNO + ":" + Id + rollNO + detail;

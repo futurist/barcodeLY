@@ -31,7 +31,7 @@ namespace barcode
             EventHandler handler = ScanFinish;
             if (handler != null)
             {
-                barcode.Form1.MethodInvoker mi = delegate
+                barcode.Form2.MethodInvoker mi = delegate
                 {
                     handler(this, e);
                 };
@@ -108,7 +108,7 @@ namespace barcode
 
         private void ScanerDataReceived(object sender, string code)
         {
-            barcode.Form1.MethodInvoker mi = delegate
+            barcode.Form2.MethodInvoker mi = delegate
             {
                 int maxlen = MaxLength;
                 if (maxlen == 13)

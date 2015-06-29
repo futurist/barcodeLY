@@ -58,7 +58,11 @@ namespace barcode
 
             this.Closing += exitApp;
 
+            txtDebug.Visible = false;
+
         }
+
+
 
         public void exitApp() {
             inter2.Enabled = false;
@@ -86,9 +90,12 @@ namespace barcode
             string sql;
             string data = (WinCE.readMemFile());
 
-            if (data == "EXIT222")
+            if (data == "EXIT")
             {
                 debug("EXIT");
+                Data.prevPutBuffer = "";
+                return;
+
                 commExited = true;
                 exitApp();
                 return;
@@ -112,8 +119,8 @@ namespace barcode
                 string sn = lines[0];
                 sql = lines[1];
                 Data.dataListSN2.Add(sn, sql);
-                //debug(Data.curSN + " " + Data.curSN.Length.ToString());
-                if (sn==Data.curSN && !string.IsNullOrEmpty(sql) ) updateLV2(sn, sql);
+
+                updateLV2(sn, sql);
                 return;
             }
 
@@ -145,17 +152,15 @@ namespace barcode
             if (InvokeRequired)
             {
                 // 要 努力 工作的 方法
-                BeginInvoke(new NewDel(getData));
+                //BeginInvoke(new NewDel(getData));
+                BeginInvoke(new Action<string>(getData), new object[] { sn });
             }
         }
 
         public void loadSN(string sn) {
 
-            if (Data.curSN == sn) return;
 
             debug("loadSN: "+sn);
-
-            Data.curSN = sn;
 
             if (!Data.dataListSN2.ContainsKey(sn))
             {
@@ -177,10 +182,13 @@ namespace barcode
             
         }
 
-        public void getData( ) {
-
-            string wh = Data.curSN.StartsWith("P", StringComparison.CurrentCultureIgnoreCase) ? " mmindtl.sPackageNo='" + Data.curSN + "'" : " mmindtl.sFabricNo='" + Data.curSN + "'";
-            DataTable dt = DB.Query(
+        public void getData(string sn)
+        {
+            DataTable dt=null;
+            string wh = sn.StartsWith("P", StringComparison.CurrentCultureIgnoreCase) ? " mmindtl.sPackageNo='" + sn + "'" : " mmindtl.sFabricNo='" + sn + "'";
+            try
+            {
+            dt = DB.Query(
                 @"select 
 sdOrderHdr.sMaterialDesc as sCode,
 mmMaterial.sMaterialName as sName,
@@ -199,10 +207,17 @@ mmInDtl.iPackageOrder as iPackageOrder
                 left join sdOrderHdr on sdOrderHdr.sOrderNo = mmInDtl.sOrderNo 
                 left join mmMaterial on mmMaterial.uGUID = mmInDtl.ummMaterialGUID where " + wh
             );
+            }
+            catch (Exception e)
+            {
+                string str = "{@error@}" + e.Message;
+                MessageBox.Show(str);
+                return;
+            }
 
             if (object.ReferenceEquals(null, dt)) return;
             
-            Data.dataListSN.Add(Data.curSN, dt);
+            Data.dataListSN.Add(sn, dt);
 
             folder.TotalRoll += dt.Rows.Count;
 
@@ -235,7 +250,7 @@ mmInDtl.iPackageOrder as iPackageOrder
 
             foreach (ColumnHeader col in lv.Columns)
             {
-                col.Width = -1;
+                col.Width = -2;
             }
 
         }
@@ -243,42 +258,57 @@ mmInDtl.iPackageOrder as iPackageOrder
 
         public void updateLV2(string sn, string sql)
         {
-            string[] lines = Regex.Split(sql, "{@row@}");
-
-            debug("updateLV2:"+sn+" "+lines.Length.ToString() );
+            
 
             lv.Items.Clear();
 
             var thePack = Data.getCodeFromList(sn);
 
-            for (var i = 0; i < lines.Length; i++) {
 
-                
-                string[] row = Regex.Split(lines[i], "{@column@}");
+            if (sql == "")
+            {
+                thePack.OrderNo = "????";
 
-                if (row.Length < 10) continue;
-
-                if (i == 0) {
-                    thePack.OrderNo = sn.StartsWith("P", StringComparison.CurrentCultureIgnoreCase) ? row[11] : row[10];
-                }
-
-                thePack.Rolls.Add( new rollClass(row) );
-
-                ListViewItem item = new ListViewItem(row[0].ToString());
-
-                var BatchNo = row[4].ToString();
-                BatchNo = (BatchNo != "" ? "[" + BatchNo + "]" : "");
-
-                string num = row[6].ToString().ToUpper() == "KG" ? String.Format("{0:0.0}", row[7]) : String.Format("{0:0.0}", row[8]);
-
-                item.SubItems.Add(row[1].ToString());
-                item.SubItems.Add(row[2].ToString() + BatchNo);
-                item.SubItems.Add(num + row[6]);
-                item.SubItems.Add(row[9].ToString());
-
-                lv.Items.Add(item);
             }
+            else if (sql.StartsWith("{@error@}"))
+            {
+                thePack.OrderNo = "!!!!";
 
+            }
+            else
+            {
+
+                string[] lines = Regex.Split(sql, "{@row@}");
+                debug("updateLV2:" + sn + " " + lines.Length.ToString());
+
+                for (var i = 0; i < lines.Length; i++)
+                {
+
+
+                    string[] row = Regex.Split(lines[i], "{@column@}");
+
+                    if (i == 0)
+                    {
+                        thePack.OrderNo = thePack.IsPackage ? row[11] : row[10];
+                    }
+
+                    thePack.addRow(row);
+
+                    ListViewItem item = new ListViewItem(row[0].ToString());
+
+                    var BatchNo = row[4].ToString();
+                    BatchNo = (BatchNo != "" ? "[" + BatchNo + "]" : "");
+
+                    string num = row[6].ToString().ToUpper() == "KG" ? String.Format("{0:0.0}", row[7]) : String.Format("{0:0.0}", row[8]);
+
+                    item.SubItems.Add(row[1].ToString());
+                    item.SubItems.Add(row[2].ToString() + BatchNo);
+                    item.SubItems.Add(num + row[6]);
+                    item.SubItems.Add(row[9].ToString());
+
+                    lv.Items.Add(item);
+                }
+            }    
             updateLisBox();
 
         }
@@ -290,6 +320,7 @@ mmInDtl.iPackageOrder as iPackageOrder
             {
                 if (Environment.OSVersion.Platform == PlatformID.WinCE)
                 {
+                    textBox1.Focus();
                     scaner.Open();
                     scaner.ScanerDataReceived += ScanerDataReceived;
                     scaner.Read();
@@ -304,7 +335,6 @@ mmInDtl.iPackageOrder as iPackageOrder
                     break;
                 case "Escape":
                     textBox1.Text = "";
-                    exitApp();
                     break;
             }
 
@@ -374,10 +404,11 @@ mmInDtl.iPackageOrder as iPackageOrder
 
             string curID = ((codeClass)listBox1.SelectedItem).Id;
 
-            if (listBox1.Enabled && Data.curSN != curID)
+            if (listBox1.Enabled && Data.prevSN != curID)
             {
                 loadSN(curID);
             }
+            Data.prevSN = curID;
         }
 
         
