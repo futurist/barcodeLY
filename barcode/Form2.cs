@@ -44,7 +44,7 @@ namespace barcode
             this.lblDuplicate.BackColor = Color.Transparent;
 
             
-            this.listBox1.DataSource = Data.codeList;
+            //this.listBox1.DataSource = Data.codeList;
 
 
             //textBox2.Text = (WinCE.readMemFile());
@@ -52,7 +52,7 @@ namespace barcode
 
 
             inter2.Enabled = false;
-            inter2.Interval = 3000; // 1 second
+            inter2.Interval = 500; // 1 second
             inter2.Tick += delegate { if (inter2.Enabled) checkData(); };
             inter2.Enabled = true;
 
@@ -509,7 +509,7 @@ mmInDtl.iPackageOrder as iPackageOrder
 
             listBox1.Enabled = false;
             listBox1.DataSource = null;
-            listBox1.DataSource = Data.codeList;
+            listBox1.DataSource = Data.getCodesFromFolder(folder.Id);
             listBox1.Enabled = true;
 
             try

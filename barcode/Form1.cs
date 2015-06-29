@@ -34,7 +34,7 @@ namespace barcode
             //this.listBox1.DisplayMember = "Text";
             //this.listBox1.ValueMember = "Id";
             this.listBox1.DataSource = Data.folderList;
-
+            
             this.Activated += new EventHandler(Form1_Activated);
             this.btnUpload.Click += new EventHandler(btnUpload_Click);
 
@@ -49,7 +49,10 @@ namespace barcode
         [DllImport("coredll")]
         static extern IntPtr SendMessage(IntPtr Handle, Int32 msg, IntPtr wParam,
         IntPtr lParam);
-        
+        [DllImport("coredll.dll", EntryPoint = "SetWindowPos")]
+        public static extern IntPtr SetWindowPos(IntPtr hWnd, int hWndInsertAfter, int x, int Y, int cx, int cy, int wFlags);
+
+
         void scrollLB() {
             var hWndListBox = listBox1.Handle;
             uint windowLong = GetWindowLong(hWndListBox, -16) | 0x00100000;
@@ -57,8 +60,118 @@ namespace barcode
 
             const int LB_SETHORIZONTALEXTENT = 0x194;
             SendMessage(hWndListBox, LB_SETHORIZONTALEXTENT, (IntPtr)650, IntPtr.Zero);
-
+            //SetWindowPos(hWndListBox, IntPtr.Zero, 100, 0, listBox1.Width, listBox1.Height, SWP_NOMOVE || SWP_NOZORDER || SWP_NOSIZE || SWP_FRAMECHANGED);
         }
+
+
+
+        // Scrolls a given textbox. handle: an handle to our textbox. pixels: number of pixels to scroll.
+        //http://stackoverflow.com/questions/13975463/scrolling-using-setscrollinfo-api
+        //http://stackoverflow.com/questions/25867581/appears-horizontal-scrollbar-after-minimizing-listview-that-has-auto-resize-colu
+        
+        private const int WM_VSCROLL = 0x0115;
+        private const int WM_HSCROLL = 0x0114;
+
+        public enum ScrollInfoMask : uint
+        {
+            SIF_RANGE = 0x1,
+            SIF_PAGE = 0x2,
+            SIF_POS = 0x4,
+            SIF_DISABLENOSCROLL = 0x8,
+            SIF_TRACKPOS = 0x10,
+            SIF_ALL = (SIF_RANGE | SIF_PAGE | SIF_POS | SIF_TRACKPOS),
+        }
+
+        public enum ScrollBarDirection
+        {
+            SB_HORZ = 0,
+            SB_VERT = 1,
+            SB_CTL = 2,
+            SB_BOTH = 3
+        }
+
+        [Serializable, StructLayout(LayoutKind.Sequential)]
+        public struct SCROLLINFO
+        {
+            public uint cbSize;
+            public uint fMask;
+            public int nMin;
+            public int nMax;
+            public uint nPage;
+            public int nPos;
+            public int nTrackPos;
+        }
+        public enum ScrollBarCommands
+        {
+            SB_LINEUP = 0,
+            SB_LINELEFT = 0,
+            SB_LINEDOWN = 1,
+            SB_LINERIGHT = 1,
+            SB_PAGEUP = 2,
+            SB_PAGELEFT = 2,
+            SB_PAGEDOWN = 3,
+            SB_PAGERIGHT = 3,
+            SB_THUMBPOSITION = 4,
+            SB_THUMBTRACK = 5,
+            SB_TOP = 6,
+            SB_LEFT = 6,
+            SB_BOTTOM = 7,
+            SB_RIGHT = 7,
+            SB_ENDSCROLL = 8
+        }
+
+        [DllImport("coredll.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool ShowScrollBar(IntPtr hWnd, int wBar, bool bShow);
+
+        [DllImport("coredll.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool GetScrollInfo(IntPtr hwnd, int fnBar, ref SCROLLINFO lpsi);
+
+        [DllImport("coredll.dll")]
+        static extern int SetScrollInfo(IntPtr hwnd, int fnBar, [In] ref SCROLLINFO
+           lpsi, bool fRedraw);
+
+
+        public static bool GetScrollInfo(Control ctrl, ref SCROLLINFO si, ScrollBarDirection scrollBarDirection)
+        {
+            if (ctrl != null)
+            {
+                si.cbSize = (uint)Marshal.SizeOf(si);
+                si.fMask = (int)ScrollInfoMask.SIF_ALL;
+                if (GetScrollInfo(ctrl.Handle, (int)scrollBarDirection, ref si))
+                    return true;
+            }
+            return false;
+        }
+
+        void scrollHoz(IntPtr handle, int pixels)
+        {
+       
+            // Get current scroller posion
+
+            SCROLLINFO si = new SCROLLINFO();
+            si.cbSize = (uint)Marshal.SizeOf(si);
+            si.fMask = (uint)ScrollInfoMask.SIF_ALL;
+            GetScrollInfo(handle, (int)ScrollBarDirection.SB_HORZ, ref si);
+
+            // Increase posion by pixles
+            if (si.nPos < (si.nMax - si.nPage))
+                si.nPos += pixels;
+            else
+            {
+                SendMessage(handle, WM_HSCROLL, (IntPtr)ScrollBarCommands.SB_ENDSCROLL, IntPtr.Zero);
+            }
+
+            // Reposition scroller
+            SetScrollInfo(handle, (int)ScrollBarDirection.SB_HORZ, ref si, true);
+
+            // Send a WM_HSCROLL scroll message using SB_THUMBTRACK as wParam
+            // SB_THUMBTRACK: low-order word of wParam, si.nPos high-order word of wParam
+            SendMessage(handle, WM_HSCROLL, (IntPtr)(ScrollBarCommands.SB_THUMBTRACK + 0x10000 * si.nPos), IntPtr.Zero);
+        }
+
+
 
 
         void btnUpload_Click(object sender, EventArgs e)
@@ -84,7 +197,7 @@ namespace barcode
                     Application.Exit();
                     break;
                 default:
-                    //scrollLB();
+                    //scrollHoz(listBox1.Handle, 50 );
                     break;
             }
 
@@ -113,7 +226,7 @@ namespace barcode
             var idx = listBox1.SelectedIndex;
             if (idx == -1) return;
 
-            var val = (folderClass)listBox1.SelectedValue;
+            var val = (folderClass)Data.folderList[ listBox1.SelectedIndex ];
             var isDirty = false;
 
             //textBox1.Text = e.KeyCode.ToString();
@@ -141,7 +254,7 @@ namespace barcode
                     //listBox1.Enabled = false;
 
                     showForm2( ID );
-
+                    
                     break;
 
                 case "Tab":
@@ -166,7 +279,7 @@ namespace barcode
             Data.folderIndex  = idx;
             if (idx == -1) return;
             
-            string curID = ((folderClass)listBox1.SelectedItem).Id;
+            string curID = ((folderClass) Data.folderList[ listBox1.SelectedIndex ]).Id;
             //textBox1.Text =s;
             
             
@@ -331,7 +444,7 @@ namespace barcode
 
         private void listBox1_EnabledChanged(object sender, EventArgs e)
         {
-            if(listBox1.Enabled) updateLisBox();
+            //if(listBox1.Enabled) updateLisBox();
         }
 
         private void Form1_Load(object sender, EventArgs e)

@@ -16,12 +16,39 @@ namespace barcode
         public static int folderIndex = -1;
 
         public static List<codeClass> codeList = new List<codeClass> { };
-        public static codeClass getCodeFromList(string id) {
-            foreach (var c in codeList) {
+
+        public static folderClass getFolderFromList(string id)
+        {
+            foreach (var c in folderList)
+            {
                 if (c.Id == id) return c;
             }
             return null;
         }
+
+
+        public static codeClass getCodeFromList(string id)
+        {
+            foreach (var c in codeList)
+            {
+                if (c.Id == id) return c;
+            }
+            return null;
+        }
+
+        public static List<codeClass> getCodesFromFolder(string folder)
+        {
+            var CL = new List<codeClass> { };
+            foreach (var c in codeList)
+            {
+                if (c.Folder == folder) {
+                    CL.Add(c);
+                }
+            }
+            return CL;
+        }
+
+
 
         public static Dictionary<string, Form2> formList = new Dictionary<string, Form2>();
 

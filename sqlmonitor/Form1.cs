@@ -37,7 +37,7 @@ namespace sqlmonitor
             //getDataAsync("P1506160166");
 
             inter1.Enabled = false;
-            inter1.Interval = 3000; // 1 second
+            inter1.Interval = 500; // 1 second
             inter1.Tick += delegate { checkData(); };
             inter1.Enabled = true;
 
@@ -81,6 +81,7 @@ namespace sqlmonitor
             {
                 WinCE.createMemFile("OK");
                 SN = data.Substring(4);
+                
                 debug("Get:"+SN+" "+SN.Length.ToString());
                 getDataAsync(SN);
                 return;

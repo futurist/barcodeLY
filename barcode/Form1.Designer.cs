@@ -187,7 +187,6 @@
         #endregion
 
         private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.ListBox listBox1;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Button btnAdd;
         private System.Windows.Forms.Panel panel2;
@@ -200,6 +199,7 @@
         private System.Windows.Forms.MainMenu mainMenu1;
         private System.Windows.Forms.Button btnUpload;
         private System.Windows.Forms.Label lblStatus;
+        private System.Windows.Forms.ListBox listBox1;
     }
 }
 
