@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using Neolix.Device;
+using System.Runtime.InteropServices;
 
 namespace barcode
 {
@@ -35,12 +36,39 @@ namespace barcode
             this.listBox1.DataSource = Data.folderList;
 
             this.Activated += new EventHandler(Form1_Activated);
+            this.btnUpload.Click += new EventHandler(btnUpload_Click);
+
             
+        }
+
+
+        [DllImport("coredll.dll")]
+        static extern uint GetWindowLong(IntPtr hwnd, int index);
+        [DllImport("coredll.dll")]
+        static extern void SetWindowLong(IntPtr hwnd, int index, uint value);
+        [DllImport("coredll")]
+        static extern IntPtr SendMessage(IntPtr Handle, Int32 msg, IntPtr wParam,
+        IntPtr lParam);
+        
+        void scrollLB() {
+            var hWndListBox = listBox1.Handle;
+            uint windowLong = GetWindowLong(hWndListBox, -16) | 0x00100000;
+            SetWindowLong(hWndListBox, -16, windowLong);
+
+            const int LB_SETHORIZONTALEXTENT = 0x194;
+            SendMessage(hWndListBox, LB_SETHORIZONTALEXTENT, (IntPtr)650, IntPtr.Zero);
+
+        }
+
+
+        void btnUpload_Click(object sender, EventArgs e)
+        {
+            Data.Upload();
         }
 
         void Form1_Activated(object sender, EventArgs e)
         {
-            updateLisBox();
+            Data.curForm = this;
         }
 
        
@@ -54,6 +82,9 @@ namespace barcode
                 case "Escape":
                     textBox1.Text = "";
                     Application.Exit();
+                    break;
+                default:
+                    //scrollLB();
                     break;
             }
 
@@ -293,6 +324,8 @@ namespace barcode
             listBox1.Enabled = true;
 
             Data.curForm = this;
+            updateLisBox();
+
             showMsg("");
         }
 

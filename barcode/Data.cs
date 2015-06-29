@@ -59,7 +59,76 @@ namespace barcode
         {
             System.Text.RegularExpressions.Regex r = new System.Text.RegularExpressions.Regex(@"^\s*[+-]?\d+(\.)?\d*\s*$");
             return r.IsMatch(strNumber);
-        } 
+        }
+
+
+        public static bool Upload() {
+            
+            Dictionary<string, string> codeDict = new Dictionary<string , string >();
+
+            foreach (folderClass folder in folderList)
+            {
+
+                //生成出库号
+                if (folder.Code == "")
+                {
+                    string mmout = @"insert into mmOutHdr
+([sStoreOutNo],[sRemark],[sStoreOutStatus],[iCompanyID],[bIsBackOut],[ummStoreGUID],[ummStoreOutTypeGUID],[sStoreOutMan],[tStoreOutTime],[sCreator],[tCreateTime],[sUpdateMan],[tUpdateTime])
+select N'STE'+ CONVERT (varchar(20), (cast ( max( RIGHT( sStoreOutNo, 9 ) ) as int )+1) ) as maxOutID, 
+N'" + folder.Id + "',N'NEW',2,0,N'{637A600B-C40F-4933-991F-4426374649D2}',N'{49C502B9-C234-4002-9DA7-2145BC1001A9}',N'yangjm',GETDATE(),N'yangjm',GETDATE(),N'yangjm',GETDATE() from mmOutHdr";
+
+                    int ret = DB.Exec(mmout);
+
+                    if (ret < 0)
+                    {
+                        MessageBox.Show("网络连接有误,请重试");
+                        return false;
+                    }
+
+
+                    DataTable dt = DB.Query("select top 1 sStoreOutNo from mmOutHdr where sRemark=N'" + folder.Id + "' order by tCreateTime desc ");
+                    if (object.ReferenceEquals(dt, null) || dt.Rows.Count == 0)
+                    {
+                        MessageBox.Show("生成单据有误,请重试");
+                        return false;
+                    }
+
+                    string sOutNo = dt.Rows[0][0].ToString();
+                    folder.Code = sOutNo;
+
+                    codeDict.Add(folder.Id, folder.Code);
+                }
+
+                //插入条码
+                List<string> listNo = new List<string>{};
+                foreach (codeClass code in codeList)
+                {
+                    if(code.Folder == folder.Id) listNo.Add( String.Format("N'{0}'", code.Id) );
+                }
+
+                string sNO = string.Join(",", listNo.ToArray());
+                //MessageBox.Show( folder.Code + " " + string.Join(",", listNo.ToArray()) );
+
+                if (sNO!="")
+                {
+                    int ret = DB.Exec(@"insert into mmOutDtl
+select newID() as uGUID, mmOutHdr.uGUID as ummOutHdrGUID,  mmInDtl.uGUID as ummInDtlGUID, nStockWeight, nStockLengthM , nStockLengthYD, nStockPieceQty, nStockPkgQty, mmInDtl.usdOrderDtlGUID,NULL, NULL, NULL,mmInDtl.nACPrice,mmInDtl.nAmount,mmInDtl.nTaxAmount, mmInDtl.sRemark, mmInDtl.bBalance, mmOutHdr.sCreator, GETDATE(), mmOutHdr.sUpdateMan, GETDATE(), mmInDtl.sFabricNo, mmInDtl.nTaxRate, mmInDtl.sUnit, mmInDtl.sBatchNo, mmInDtl.sCurrency, mmInDtl.sOrderNo, mmInDtl.upsSubContractDtlGUID, mmInDtl.nFreeQty, mmInDtl.sPackageNo, mmInDtl.sBoardNo, mmInDtl.iFabricOrder, mmPurchaseContractDtl.nAddAmount,mmInDtl.sShade, NULL as nDiscountAmount, mmInDtl.iPackageOrder from mmInDtl
+left join mmPurchaseContractDtl on mmPurchaseContractDtl.uGUID=mmInDtl.ummPurchaseContractDtlGUID
+left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDtl.sFabricNo in ( " + sNO + " ) and not exists ( select 1 from mmOutDtl b where mmInDtl.sFabricNo=b.sFabricNo )");
+                    if (ret < 0)
+                    {
+                        MessageBox.Show("插入条码有误,请重试");
+                        return false;
+                    }
+                }
+                if(curForm!=null && curForm.Name=="Form1") ((Form1)curForm).updateLisBox();
+
+            }
+
+            MessageBox.Show("上传数据成功！");
+
+            return true;
+        }
 
     }
 
@@ -69,7 +138,6 @@ namespace barcode
         public string Id { get; set; }
         public string Text { get; set; }
         public string Code { get; set; }
-        public int TotalRoll { get; set; }
 
         public folderClass(string id, string text)
         {
@@ -235,7 +303,7 @@ namespace barcode
 
     public class DB {
 
-        static string Sqlstr = "Data Source=161.175.244.158,14433;Database=HSFabricTrade_LYCK;persist security info=True;Connection Timeout=10;User ID=dyeinguser;Password=dyeing@2011";
+        static string Sqlstr = "Data Source=61.175.244.158,14433;Database=HSFabricTrade_LYCK;persist security info=True;Connection Timeout=10;User ID=dyeinguser;Password=dyeing@2011";
 
 
         public static DataTable Query(string sql)
@@ -279,9 +347,16 @@ namespace barcode
                     Data.showMsg("NC!! " + ex.Message);
                     return -1;
                 }
-                commandSql.Connection = conn;
-                commandSql.Connection.Open();
-                rowsAffected = commandSql.ExecuteNonQuery();
+                try
+                {
+                    rowsAffected = commandSql.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    //MessageBox.Show("无法连接到数据库！" + ex.Message);
+                    Data.showMsg("NC!! " + ex.Message);
+                    return -1;
+                }
             }
             return rowsAffected;
         }

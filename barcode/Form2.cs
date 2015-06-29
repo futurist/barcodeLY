@@ -221,10 +221,6 @@ mmInDtl.iPackageOrder as iPackageOrder
             
             Data.dataListSN.Add(sn, dt);
 
-            folder.TotalRoll += dt.Rows.Count;
-
-            lblFolder.Text = "品种：" + Data.folderList[Data.folderIndex].TotalRoll.ToString();
-
             updateLV(dt);
             
         }
