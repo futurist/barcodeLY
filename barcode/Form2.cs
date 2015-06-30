@@ -20,6 +20,7 @@ namespace barcode
     public partial class Form2 : Form
     {
 
+        public Form1 form1;
         public folderClass folder = Data.folderList[Data.folderIndex];
         public System.Windows.Forms.Timer inter1 = new System.Windows.Forms.Timer();
         public System.Windows.Forms.Timer inter2 = new System.Windows.Forms.Timer();
@@ -29,8 +30,9 @@ namespace barcode
 
         public bool commExited = false;
 
-        public Form2()
+        public Form2(Form1 prevForm)
         {
+            form1 = prevForm;
             InitializeComponent();
 
             //this.TopMost = true;
@@ -90,10 +92,12 @@ namespace barcode
             txtDebug.Text = str + "\r\n" + txtDebug.Text;
         }
 
-
+        
 
         public void checkData()
         {
+            Data.cacheToFile(folder.Id);
+
             string sql;
             string data = (WinCE.readMemFile());
 
@@ -110,10 +114,22 @@ namespace barcode
 
             if (data.StartsWith("<<<<")) return;
 
-            if (data=="OK" && Data.putBuffer != "" && Data.prevPutBuffer!=Data.putBuffer ) {
-                WinCE.createMemFile("<<<<" + Data.putBuffer);
-                Data.prevPutBuffer = Data.putBuffer;
-                debug("Send:"+Data.putBuffer);
+            if (data=="OK" ) {
+
+                string SNs = string.Join("{@sn@}", Data.getEmptyCodesFromFolder(folder.Id).ToArray() );
+
+                if (SNs == "") return;
+
+                Data.putBuffer = SNs;
+
+                if (Data.putBuffer != "" && Data.prevPutBuffer != Data.putBuffer)
+                {
+
+                    WinCE.createMemFile("<<<<" + Data.putBuffer);
+                    Data.prevPutBuffer = Data.putBuffer;
+                    debug("Send:" + Data.putBuffer);
+
+                }
                 return;
             }
 
@@ -122,12 +138,20 @@ namespace barcode
                 WinCE.createMemFile("OK");
                 sql = data.Substring(4);
                 debug("Get:"+sql);
-                string [] lines = Regex.Split(sql, "{@head@}");
-                string sn = lines[0];
-                sql = lines[1];
-                Data.dataListSN2.Add(sn, sql);
                 
-                updateLV2(sn, sql);
+                string[] records = Regex.Split(sql, "{@record@}");
+
+                foreach (string rec in records)
+                {
+                    string[] lines = Regex.Split(rec, "{@head@}");
+                    if (lines.Length > 1)
+                    {
+                        string sn = lines[0];
+                        Data.dataListSN2.Add(sn, lines[1]);
+                        updateLV2(sn, lines[1]);
+                    }
+                }
+
                 return;
             }
 
@@ -352,7 +376,7 @@ mmInDtl.iPackageOrder as iPackageOrder
                     lv.Focus();
                     break;
                 case "Escape":
-                    this.Hide();
+                    hideMe();
                     break;
 
                 case "Return":
@@ -395,7 +419,7 @@ mmInDtl.iPackageOrder as iPackageOrder
                     lv.Focus();
                     break;
                 case "Escape":
-                    this.Hide();
+                    hideMe();
                     break;
             }
 
@@ -506,6 +530,7 @@ mmInDtl.iPackageOrder as iPackageOrder
             var idx = listBox1.SelectedIndex;
             if (idx == -1) idx = Data.codeList.Count - 1;
             addLisBox(new codeClass( textBox1.Text, folder.Id ));
+            listBox1.SelectedIndex = 0;
             //textBox1.Focus();
             textBox1.Text = "";
             textBox1.Focus();
@@ -712,7 +737,7 @@ mmInDtl.iPackageOrder as iPackageOrder
                     lv.Focus();
                     break;
                 case "Escape":
-                    this.Hide();
+                    hideMe();
                     break;
                 case "Space":
                     Point pos = GetItemPosition(2);
@@ -730,6 +755,11 @@ mmInDtl.iPackageOrder as iPackageOrder
                     break;
 
             }
+        }
+
+        void hideMe() {
+            this.Hide();
+            form1.updateLisBox();
         }
 
         private void lblFolder_Click(object sender, EventArgs e)

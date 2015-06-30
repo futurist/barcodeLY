@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Threading;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace sqlmonitor
 {
@@ -79,11 +80,15 @@ namespace sqlmonitor
 
             if (data.StartsWith("<<<<"))
             {
+
+                string[] SNs = Regex.Split(data.Substring(4), "{@sn@}");
+
+                Data.putBuffer = getManyData(SNs);
                 WinCE.createMemFile("OK");
-                SN = data.Substring(4);
-                
-                debug("Get:"+SN+" "+SN.Length.ToString());
-                getDataAsync(SN);
+
+                //debug("Get:"+SN+" "+SN.Length.ToString());
+                //getDataAsync(SN);
+
                 return;
             }
 
@@ -138,7 +143,7 @@ namespace sqlmonitor
             {
                 // 要 努力 工作的 方法
                 //BeginInvoke(new NewDel(getData));
-                BeginInvoke( new Action<string>(getData), new object[] { sn });
+                //BeginInvoke( new Action<string>(getData), new object[] { sn });
 
             }
         }
@@ -162,7 +167,17 @@ namespace sqlmonitor
 
         }
 
-        public void getData(string sn)
+        public string getManyData(string[] SNs) {
+
+            List<string> ret = new List<string> { };
+            foreach (string sn in SNs) {
+                ret.Add(getData(sn));
+            }
+            return string.Join("{@record@}", ret.ToArray() );
+
+        }
+
+        public string getData(string sn)
         {
             DataTable dt = null;
 
@@ -192,17 +207,17 @@ mmInDtl.iPackageOrder as iPackageOrder
             catch (Exception e) {
                 string str = "{@error@}" + e.Message;
                 //MessageBox.Show(str);
-                Data.putBuffer = str;
-                return;
+                //Data.putBuffer = str;
+                return "";
             }
 
             Data.dataListSN.Add(sn, dt);
 
-            updateLV(sn, dt);
+            return updateLV(sn, dt);
         }
+        
 
-
-        public void updateLV(string sn, DataTable dt) {
+        public string updateLV(string sn, DataTable dt) {
 
 
             List<string> dtTable = new List<string> { };
@@ -223,6 +238,8 @@ mmInDtl.iPackageOrder as iPackageOrder
             txtDebug.Text = str;
 
             Data.putBuffer = str;
+
+            return str;
 
         }
 

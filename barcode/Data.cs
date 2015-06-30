@@ -7,11 +7,64 @@ using System.Data.SqlTypes;
 using System.Data.SqlClient;
 using System.Windows.Forms;
 using System.CodeDom.Compiler;
+using System.IO;
 
 namespace barcode
 {
     class Data
     {
+        public static Dictionary<string, string> cacheDict = new Dictionary<string, string> { };
+
+        public static string cacheFolder = @"\Application\barcode\";
+
+        public static void cacheToFile(string folderId) { 
+            
+            List<string> s = new List<string>{};
+            var codes = getCodesFromFolder(folderId);
+            foreach(var c in codes){
+                s.Add(c.Id);
+            }
+            string curFileContent = string.Join("{br}", s.ToArray());
+            if (!cacheDict.ContainsKey(folderId)) {
+                cacheDict.Add(folderId, "");
+            }
+            if ( curFileContent!="" && cacheDict[folderId] != curFileContent)
+            {
+                cacheDict[folderId] = curFileContent;
+
+                try
+                {
+                    if (!Directory.Exists(cacheFolder)) {
+                        Directory.CreateDirectory(cacheFolder);
+                    }
+
+                    string filepath = cacheFolder + folderId + ".txt";
+
+                    //StreamWriter file = null;
+                    
+                    //if (!File.Exists(filepath))
+                    //{
+                    //    file = File.CreateText(filepath);
+                    //}
+                    //else {
+                    //    //file = (StreamWriter)File.OpenWrite(filepath);
+                    //}
+
+                    var ws = new StreamWriter(filepath);
+
+                    ws.Write(curFileContent);
+                    ws.Close();
+                }catch(Exception e){
+                    MessageBox.Show("Exception: " + e.Message);
+                }
+                //File.WriteAllText(@"\\Application\\barcode\\" + folderId, curFileContent);
+            }
+        
+        }
+
+
+
+
         public static List<folderClass> folderList = new List<folderClass> { };
         public static int folderIndex = -1;
 
@@ -48,6 +101,18 @@ namespace barcode
             return CL;
         }
 
+        public static List<string> getEmptyCodesFromFolder(string folder)
+        {
+            var CL = new List<string> { };
+            foreach (var c in codeList)
+            {
+                if (c.Folder == folder && c.OrderNo=="")
+                {
+                    CL.Add(c.Id);
+                }
+            }
+            return CL;
+        }
 
 
         public static Dictionary<string, Form2> formList = new Dictionary<string, Form2>();
@@ -251,6 +316,7 @@ left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDt
         }
         public override string ToString()
         {
+            int NO = 0;
             int packNum=0;
             int rollNum=0;
             double lengthM=0;
@@ -259,6 +325,7 @@ left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDt
 
             foreach( var code in Data.codeList ){
                 if (code.Folder == this.Id) {
+                    NO++;
                     if(code.IsPackage) packNum++;
                     rollNum += code.IsPackage ? code.Rolls.Count : 1;
                     foreach (var r in code.Rolls)
@@ -279,7 +346,7 @@ left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDt
                 }
             }
 
-            Text = String.Format("[{0:0}][{1:0}][{2:0}M+{3:0}Y+{4:0}KG]", packNum, rollNum, lengthM, lengthYD, lengthKG );
+            Text = String.Format("[{0:0}]", NO)+ String.Format("[{0:0}][{1:0}][{2:0}M+{3:0}Y+{4:0}KG]", packNum, rollNum, lengthM, lengthYD, lengthKG );
 
             return Id + (Text != "" ? ":" + Text : "") + (Code != "" ? ":" + Code : "");
         }

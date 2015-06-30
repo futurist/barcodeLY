@@ -132,7 +132,6 @@ namespace barcode
         static extern int SetScrollInfo(IntPtr hwnd, int fnBar, [In] ref SCROLLINFO
            lpsi, bool fRedraw);
 
-
         public static bool GetScrollInfo(Control ctrl, ref SCROLLINFO si, ScrollBarDirection scrollBarDirection)
         {
             if (ctrl != null)
@@ -148,7 +147,9 @@ namespace barcode
         void scrollHoz(IntPtr handle, int pixels)
         {
             scrollLB(handle);
-            
+
+            //ShowScrollBar(handle, (int)ScrollBarDirection.SB_HORZ, (bool)false);
+
             // Get current scroller posion
 
             SCROLLINFO si = new SCROLLINFO();
@@ -157,12 +158,18 @@ namespace barcode
             GetScrollInfo(handle, (int)ScrollBarDirection.SB_HORZ, ref si);
 
             // Increase posion by pixles
+            si.nPos += pixels;
+            if (si.nPos > (si.nMax - si.nPage)) si.nPos = (int)(si.nMax - si.nPage);
+            if (si.nPos < 0) si.nPos = 0;
+            
+            /*
             if (si.nPos < (si.nMax - si.nPage))
                 si.nPos += pixels;
             else
             {
-                SendMessage(handle, WM_HSCROLL, (IntPtr)ScrollBarCommands.SB_ENDSCROLL, IntPtr.Zero);
+                SendMessage(handle, WM_HSCROLL, (IntPtr)ScrollBarCommands.SB_PAGERIGHT, IntPtr.Zero);
             }
+             */
 
             // Reposition scroller
             SetScrollInfo(handle, (int)ScrollBarDirection.SB_HORZ, ref si, true);
@@ -240,6 +247,16 @@ namespace barcode
                     break;
                 case "Escape":
                     textBox1.Focus();
+                    break;
+                case "Left":
+                    scrollHoz( listBox1.Handle, -100 );
+                    e.Handled = true;
+                    return;
+                    break;
+                case "Right":
+                    scrollHoz(listBox1.Handle, 100);
+                    e.Handled = true;
+                    return;
                     break;
             }
             var idx = listBox1.SelectedIndex;
@@ -420,7 +437,7 @@ namespace barcode
             //this.Hide();
             if (!Data.formList.ContainsKey(folderID))
             {
-                Data.formList.Add(folderID, new Form2() );
+                Data.formList.Add(folderID, new Form2( this  ) );
             }
             Data.formList[folderID].Show();
         }
