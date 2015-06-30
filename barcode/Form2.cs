@@ -36,9 +36,6 @@ namespace barcode
             //this.TopMost = true;
             //this.FormBorderStyle = FormBorderStyle.None;
             //this.WindowState = FormWindowState.Maximized;
-
-
-            textBox1.Text = folder.Id;
             
             this.lblDuplicate.Hide();
             this.lblDuplicate.BackColor = Color.Transparent;
@@ -56,10 +53,19 @@ namespace barcode
             inter2.Tick += delegate { if (inter2.Enabled) checkData(); };
             inter2.Enabled = true;
 
-            this.Closing += exitApp;
+            //this.Closing += exitApp;
 
             txtDebug.Visible = false;
             lv.Items.Clear();
+
+            this.Activated += new EventHandler(Form2_Activated);
+
+        }
+
+        void Form2_Activated(object sender, EventArgs e)
+        {
+            Data.curForm = this;
+            updateLisBox();
         }
 
 
@@ -345,11 +351,14 @@ mmInDtl.iPackageOrder as iPackageOrder
                 case "F3":
                     lv.Focus();
                     break;
+                case "Escape":
+                    this.Hide();
+                    break;
 
                 case "Return":
                     btnAdd_Click(sender, e);
                     break;
-                case "Escape":
+                case "F8":
                     textBox1.Text = "";
                     break;
             }
@@ -372,6 +381,23 @@ mmInDtl.iPackageOrder as iPackageOrder
 
         private void listBox1_KeyDown(object sender, KeyEventArgs e)
         {
+            switch (e.KeyCode.ToString())
+            {
+                case "F1":
+                case "F4":
+                case "Return":
+                    textBox1.Focus();
+                    break;
+                case "F2":
+                    listBox1.Focus();
+                    break;
+                case "F3":
+                    lv.Focus();
+                    break;
+                case "Escape":
+                    this.Hide();
+                    break;
+            }
 
             var idx = listBox1.SelectedIndex;
             if (idx == -1) return;
@@ -386,25 +412,14 @@ mmInDtl.iPackageOrder as iPackageOrder
             var val = (codeClass)listBox1.SelectedValue;
             var isDirty = false;
 
-            //textBox1.Text = e.KeyCode.ToString();
             debug( e.KeyValue.ToString() + " " + e.KeyCode.ToString());
 
             switch (e.KeyCode.ToString())
             {
-                case "F1":
-                case "F4":
-                case "Return":
-                    textBox1.Focus();
-                    break;
-                case "F2":
-                    listBox1.Focus();
-                    break;
-                case "F3":
-                    lv.Focus();
-                    break;
-
+                
 
                 case "Delete":
+                case "Back":
                     Data.codeList.RemoveAt(idx);
                     isDirty = true;
                     e.Handled = true;
@@ -418,17 +433,26 @@ mmInDtl.iPackageOrder as iPackageOrder
                     textBox1.Focus();
                     e.Handled = true;
                     break;
+
                 case "Up":
-                case "Left":
-                    e.Handled = true;
-                    listBox1.SelectedIndex = Math.Max( listBox1.SelectedIndex-1, 0 );
+                    //e.Handled = true;
+                    //listBox1.SelectedIndex = Math.Max( listBox1.SelectedIndex-1, 0 );
                     break;
                 case "Down":
-                case "Right":
-                    e.Handled = true;
-                    listBox1.SelectedIndex = Math.Min(listBox1.SelectedIndex + 1, listBox1.Items.Count-1 );
+                    //e.Handled = true;
+                    //listBox1.SelectedIndex = Math.Min(listBox1.SelectedIndex + 1, listBox1.Items.Count-1 );
                     break;
 
+
+                case "Left":
+                    ScrollHorizontal(-200);
+                    e.Handled = true;
+                    break;
+
+                case "Right":
+                    ScrollHorizontal(200);
+                    e.Handled = true;
+                    break;
 
                 default:
                     
@@ -484,7 +508,6 @@ mmInDtl.iPackageOrder as iPackageOrder
             addLisBox(new codeClass( textBox1.Text, folder.Id ));
             //textBox1.Focus();
             textBox1.Text = "";
-            listBox1.SelectedIndex = 0;
             textBox1.Focus();
             
         }
@@ -620,7 +643,6 @@ mmInDtl.iPackageOrder as iPackageOrder
         {
             Point point = Point.Empty;
             SendMessage(lv.Handle, LVM_GETITEMPOSITION, (IntPtr)idx, out point);
-            //textBox1.Text = point.X.ToString();
             return point;
         }
 
@@ -689,7 +711,9 @@ mmInDtl.iPackageOrder as iPackageOrder
                 case "F3":
                     lv.Focus();
                     break;
-
+                case "Escape":
+                    this.Hide();
+                    break;
                 case "Space":
                     Point pos = GetItemPosition(2);
                     if(pos.X<0)
@@ -710,7 +734,7 @@ mmInDtl.iPackageOrder as iPackageOrder
 
         private void lblFolder_Click(object sender, EventArgs e)
         {
-            this.Hide();
+            //this.Hide();
         }
 
 

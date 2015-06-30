@@ -88,9 +88,57 @@ namespace barcode
             return r.IsMatch(strNumber);
         }
 
+        public static void deleteFolder(string id, int pos) {
+            
+            for (int i=0; i<codeList.Count; i++) {
+                var code = codeList[i];
+                if (code.Folder == id) {
+                    codeList.Remove(code);
+                    i--;
+                }
+                
+            }
+
+
+            folderList.RemoveAt(pos);
+
+            
+        }
+
+
+        public static void modifyFolder(string newid, int pos)
+        {
+            string oldId = folderList[pos].Id;
+            for (int i = 0; i < codeList.Count; i++)
+            {
+                var code = codeList[i];
+                if (code.Folder == oldId)
+                {
+                    code.Folder = newid;
+                }
+            }
+
+            if (folderList[pos].Code != "")
+            {
+                int ret = DB.Exec(@"update mmOutHdr set sRemark=N'"+ newid +"' where sStoreOutNo = N'" + folderList[pos].Code + "'");
+
+                if (ret < 0)
+                {
+                    MessageBox.Show("网络连接有误,请手动在电脑上更改备注以同步");
+                }
+            }
+
+
+            folderList[pos].Id = newid;
+
+        }
+
+
 
         public static bool Upload() {
-            
+
+            if (folderList.Count == 0) return false;
+
             Dictionary<string, string> codeDict = new Dictionary<string , string >();
 
             foreach (folderClass folder in folderList)
@@ -127,16 +175,23 @@ N'" + folder.Id + "',N'NEW',2,0,N'{637A600B-C40F-4933-991F-4426374649D2}',N'{49C
                 }
 
                 //插入条码
-                List<string> listNo = new List<string>{};
+                List<string> fabricNos = new List<string> { };
+                List<string> packageNos = new List<string> { };
                 foreach (codeClass code in codeList)
                 {
-                    if(code.Folder == folder.Id) listNo.Add( String.Format("N'{0}'", code.Id) );
+                    if (code.Folder == folder.Id)
+                    {
+                        if(code.IsPackage)
+                        {
+                            packageNos.Add(String.Format("N'{0}'", code.Id)); 
+                        }else{
+                            fabricNos.Add(String.Format("N'{0}'", code.Id));
+                        }
+                    }
                 }
 
-                string sNO = string.Join(",", listNo.ToArray());
-                //MessageBox.Show( folder.Code + " " + string.Join(",", listNo.ToArray()) );
-
-                if (sNO!="")
+                string sNO = string.Join(",", fabricNos.ToArray());
+                if (sNO != "")
                 {
                     int ret = DB.Exec(@"insert into mmOutDtl
 select newID() as uGUID, mmOutHdr.uGUID as ummOutHdrGUID,  mmInDtl.uGUID as ummInDtlGUID, nStockWeight, nStockLengthM , nStockLengthYD, nStockPieceQty, nStockPkgQty, mmInDtl.usdOrderDtlGUID,NULL, NULL, NULL,mmInDtl.nACPrice,mmInDtl.nAmount,mmInDtl.nTaxAmount, mmInDtl.sRemark, mmInDtl.bBalance, mmOutHdr.sCreator, GETDATE(), mmOutHdr.sUpdateMan, GETDATE(), mmInDtl.sFabricNo, mmInDtl.nTaxRate, mmInDtl.sUnit, mmInDtl.sBatchNo, mmInDtl.sCurrency, mmInDtl.sOrderNo, mmInDtl.upsSubContractDtlGUID, mmInDtl.nFreeQty, mmInDtl.sPackageNo, mmInDtl.sBoardNo, mmInDtl.iFabricOrder, mmPurchaseContractDtl.nAddAmount,mmInDtl.sShade, NULL as nDiscountAmount, mmInDtl.iPackageOrder from mmInDtl
@@ -148,6 +203,22 @@ left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDt
                         return false;
                     }
                 }
+
+                sNO = string.Join(",", packageNos.ToArray());
+                if (sNO != "")
+                {
+                    int ret = DB.Exec(@"insert into mmOutDtl
+select newID() as uGUID, mmOutHdr.uGUID as ummOutHdrGUID,  mmInDtl.uGUID as ummInDtlGUID, nStockWeight, nStockLengthM , nStockLengthYD, nStockPieceQty, nStockPkgQty, mmInDtl.usdOrderDtlGUID,NULL, NULL, NULL,mmInDtl.nACPrice,mmInDtl.nAmount,mmInDtl.nTaxAmount, mmInDtl.sRemark, mmInDtl.bBalance, mmOutHdr.sCreator, GETDATE(), mmOutHdr.sUpdateMan, GETDATE(), mmInDtl.sFabricNo, mmInDtl.nTaxRate, mmInDtl.sUnit, mmInDtl.sBatchNo, mmInDtl.sCurrency, mmInDtl.sOrderNo, mmInDtl.upsSubContractDtlGUID, mmInDtl.nFreeQty, mmInDtl.sPackageNo, mmInDtl.sBoardNo, mmInDtl.iFabricOrder, mmPurchaseContractDtl.nAddAmount,mmInDtl.sShade, NULL as nDiscountAmount, mmInDtl.iPackageOrder from mmInDtl
+left join mmPurchaseContractDtl on mmPurchaseContractDtl.uGUID=mmInDtl.ummPurchaseContractDtlGUID
+left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDtl.sPackageNo in ( " + sNO + " ) and not exists ( select 1 from mmOutDtl b where mmInDtl.sFabricNo=b.sFabricNo )");
+                    if (ret < 0)
+                    {
+                        MessageBox.Show("插入条码有误,请重试");
+                        return false;
+                    }
+                }
+
+
                 if(curForm!=null && curForm.Name=="Form1") ((Form1)curForm).updateLisBox();
 
             }
@@ -188,8 +259,8 @@ left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDt
 
             foreach( var code in Data.codeList ){
                 if (code.Folder == this.Id) {
-                    packNum++;
-                    rollNum += code.Rolls.Count;
+                    if(code.IsPackage) packNum++;
+                    rollNum += code.IsPackage ? code.Rolls.Count : 1;
                     foreach (var r in code.Rolls)
                     {
                         if (string.Equals(r.sUnit, "KG", StringComparison.CurrentCultureIgnoreCase))

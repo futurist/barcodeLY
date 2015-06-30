@@ -37,7 +37,8 @@ namespace barcode
             
             this.Activated += new EventHandler(Form1_Activated);
             this.btnUpload.Click += new EventHandler(btnUpload_Click);
-
+            
+            scrollLB(listBox1.Handle);
             
         }
 
@@ -51,15 +52,14 @@ namespace barcode
         IntPtr lParam);
         [DllImport("coredll.dll", EntryPoint = "SetWindowPos")]
         public static extern IntPtr SetWindowPos(IntPtr hWnd, int hWndInsertAfter, int x, int Y, int cx, int cy, int wFlags);
+        const int LB_SETHORIZONTALEXTENT = 0x194;
 
-
-        void scrollLB() {
-            var hWndListBox = listBox1.Handle;
+        void scrollLB(IntPtr hWndListBox)
+        {
             uint windowLong = GetWindowLong(hWndListBox, -16) | 0x00100000;
             SetWindowLong(hWndListBox, -16, windowLong);
-
-            const int LB_SETHORIZONTALEXTENT = 0x194;
-            SendMessage(hWndListBox, LB_SETHORIZONTALEXTENT, (IntPtr)650, IntPtr.Zero);
+            
+            SendMessage(hWndListBox, LB_SETHORIZONTALEXTENT, (IntPtr)620, IntPtr.Zero);
             //SetWindowPos(hWndListBox, IntPtr.Zero, 100, 0, listBox1.Width, listBox1.Height, SWP_NOMOVE || SWP_NOZORDER || SWP_NOSIZE || SWP_FRAMECHANGED);
         }
 
@@ -69,8 +69,8 @@ namespace barcode
         //http://stackoverflow.com/questions/13975463/scrolling-using-setscrollinfo-api
         //http://stackoverflow.com/questions/25867581/appears-horizontal-scrollbar-after-minimizing-listview-that-has-auto-resize-colu
         
-        private const int WM_VSCROLL = 0x0115;
-        private const int WM_HSCROLL = 0x0114;
+        const int WM_VSCROLL = 0x0115;
+        const int WM_HSCROLL = 0x0114;
 
         public enum ScrollInfoMask : uint
         {
@@ -147,7 +147,8 @@ namespace barcode
 
         void scrollHoz(IntPtr handle, int pixels)
         {
-       
+            scrollLB(handle);
+            
             // Get current scroller posion
 
             SCROLLINFO si = new SCROLLINFO();
@@ -189,15 +190,21 @@ namespace barcode
         {
             
             switch(e.KeyCode.ToString()){
+                case "F1":
+                    textBox1.Focus();
+                    break;
+                case "F2":
+                    listBox1.Focus();
+                    break;
                 case "Return":
                     btnAdd_Click(sender, e);
                     break;
                 case "Escape":
                     textBox1.Text = "";
-                    Application.Exit();
                     break;
                 default:
                     //scrollHoz(listBox1.Handle, 50 );
+                    
                     break;
             }
 
@@ -223,6 +230,18 @@ namespace barcode
 
         private void listBox1_KeyDown(object sender, KeyEventArgs e)
         {
+            switch (e.KeyCode.ToString())
+            {
+                case "F1":
+                    textBox1.Focus();
+                    break;
+                case "F2":
+                    listBox1.Focus();
+                    break;
+                case "Escape":
+                    textBox1.Focus();
+                    break;
+            }
             var idx = listBox1.SelectedIndex;
             if (idx == -1) return;
 
@@ -231,12 +250,18 @@ namespace barcode
 
             //textBox1.Text = e.KeyCode.ToString();
 
-            switch (e.KeyCode.ToString()) { 
+            switch (e.KeyCode.ToString()) {
+                
+                case "Back":
                 case "Delete":
-                    Data.folderList.RemoveAt(idx);
-                    isDirty = true;
+                    DialogResult dialogResult = MessageBox.Show("确定要删除当前选择下的所有记录?", "确认删除", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button2);
+                    if (dialogResult == DialogResult.Yes)
+                    {
+                        Data.deleteFolder(val.Id, idx);
+                        isDirty = true;
+                    }
                     break;
-                case "Space":
+                case "F4":
                     textBox2.Text = Data.folderList[idx].Id;
 
                     this.panel2.Location = panel1.Location;
@@ -262,14 +287,16 @@ namespace barcode
                     e.Handled = true;
                     break;
                 default:
-                    Data.folderList[idx].Code = e.KeyCode.ToString();
+                    
                     //isDirty = true;
                     break;
             }
+            
+            updateLisBox();
 
             if (isDirty)
             {
-                updateLisBox();
+                
             }
         }
 
@@ -353,8 +380,8 @@ namespace barcode
                 return;
             }
 
-            Data.folderList[idx] = (folder);
-
+            Data.modifyFolder( folder.Id, idx );
+            
             updateLisBox();
         }
 

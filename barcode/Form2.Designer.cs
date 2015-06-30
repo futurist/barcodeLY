@@ -29,8 +29,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.ListViewItem listViewItem7 = new System.Windows.Forms.ListViewItem();
-            System.Windows.Forms.ListViewItem listViewItem8 = new System.Windows.Forms.ListViewItem();
+            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem();
+            System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem();
             this.mainMenu1 = new System.Windows.Forms.MainMenu();
             this.panel1 = new System.Windows.Forms.Panel();
             this.textBox1 = new Neolix.Device.ScanTextBox();
@@ -113,14 +113,14 @@
             this.lv.Columns.Add(this.num);
             this.lv.Columns.Add(this.sn);
             this.lv.FullRowSelect = true;
-            listViewItem7.Text = "AAAAA2134";
-            listViewItem7.SubItems.Add("sdfsdf");
-            listViewItem7.SubItems.Add("sdfsdsd");
-            listViewItem8.Text = "BBBBB";
-            listViewItem8.SubItems.Add("111");
-            listViewItem8.SubItems.Add("222");
-            this.lv.Items.Add(listViewItem7);
-            this.lv.Items.Add(listViewItem8);
+            listViewItem3.Text = "AAAAA2134";
+            listViewItem3.SubItems.Add("sdfsdf");
+            listViewItem3.SubItems.Add("sdfsdsd");
+            listViewItem4.Text = "BBBBB";
+            listViewItem4.SubItems.Add("111");
+            listViewItem4.SubItems.Add("222");
+            this.lv.Items.Add(listViewItem3);
+            this.lv.Items.Add(listViewItem4);
             this.lv.Location = new System.Drawing.Point(10, 179);
             this.lv.Name = "lv";
             this.lv.Size = new System.Drawing.Size(220, 93);
@@ -155,6 +155,8 @@
             // 
             // lblFolder
             // 
+            this.lblFolder.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Regular);
+            this.lblFolder.ForeColor = System.Drawing.Color.Black;
             this.lblFolder.Location = new System.Drawing.Point(10, 155);
             this.lblFolder.Name = "lblFolder";
             this.lblFolder.Size = new System.Drawing.Size(220, 20);
@@ -191,6 +193,8 @@
             this.Controls.Add(this.listBox1);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.lblStatus);
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "Form2";
             this.Text = "Form2";
             this.Load += new System.EventHandler(this.Form2_Load);

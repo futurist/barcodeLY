@@ -22,14 +22,14 @@ namespace sqlmonitor
         {
             InitializeComponent();
 
-            this.TopMost = true;
+            //this.TopMost = true;
             //this.FormBorderStyle = FormBorderStyle.None;
             //this.WindowState = FormWindowState.Maximized;
 
 
             //textBox1.Text = (WinCE.readMemFile());
             
-            //launchApp();
+            launchApp();
 
 
             WinCE.createMemFile("OK");
