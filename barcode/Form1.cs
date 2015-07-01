@@ -16,14 +16,16 @@ namespace barcode
     {
 
         public Timer inter1 = new Timer();
+        public Scaner scanner = new Scaner();
+
 
         public Form1()
         {
             InitializeComponent();
 
-            //this.TopMost = true;
-            //this.FormBorderStyle = FormBorderStyle.None;
-            //this.WindowState = FormWindowState.Maximized;
+            this.TopMost = true;
+            this.FormBorderStyle = FormBorderStyle.None;
+            this.WindowState = FormWindowState.Maximized;
 
             this.panel2.Hide();
             this.lblDuplicate.Hide();
@@ -39,8 +41,13 @@ namespace barcode
             this.btnUpload.Click += new EventHandler(btnUpload_Click);
             
             scrollLB(listBox1.Handle);
-            
+
+            CONFIG.initServer();
+
+            //scanner.Open();
         }
+
+        
 
 
         [DllImport("coredll.dll")]
@@ -184,6 +191,7 @@ namespace barcode
 
         void btnUpload_Click(object sender, EventArgs e)
         {
+            listBox1.Focus();
             Data.Upload();
         }
 
@@ -201,6 +209,9 @@ namespace barcode
                     textBox1.Focus();
                     break;
                 case "F2":
+                    listBox1.Focus();
+                    break;
+                case "Down":
                     listBox1.Focus();
                     break;
                 case "Return":
@@ -239,6 +250,7 @@ namespace barcode
         {
             switch (e.KeyCode.ToString())
             {
+
                 case "F1":
                     textBox1.Focus();
                     break;
@@ -364,11 +376,26 @@ namespace barcode
                 showDuplicateMsg(folder);
                 return;
             }
-            
+
+
             Data.folderList.Add(folder);
-            Data.folderIndex  = Data.folderList.Count-1;
+
+
+            //导入之前缓存到文件的数据
+            string str = Data.checkFileCache(folder.Id);
+            if (str != "")
+            {
+                DialogResult dialogResult = MessageBox.Show("检测到此备注之前有数据，是否导入?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
+                if (dialogResult == DialogResult.Yes)
+                {
+                    Data.updateFolderFromStr(folder.Id, str);
+                }
+            }
+
 
             updateLisBox();
+
+
 
         }
 
@@ -414,6 +441,10 @@ namespace barcode
 
         }
 
+        public void stopClock() {
+            inter1.Enabled = false;
+        }
+
         public void updateLisBox() {
             var prevIndex = listBox1.SelectedIndex;
             listBox1.DataSource = null;
@@ -439,7 +470,10 @@ namespace barcode
             {
                 Data.formList.Add(folderID, new Form2( this  ) );
             }
-            Data.formList[folderID].Show();
+            Form2 form2 = Data.formList[folderID];
+            Data.curForm = form2;
+            form2.updateLisBox();
+            form2.Show();
         }
 
 
@@ -498,8 +532,6 @@ namespace barcode
             //this.Paint += Form1_GotFocus;
             textBox1.GotFocus += Form1_GotFocus;
 
-            //WinCE.createMemFile("[2015-6-21 13:40:02]单据号[150621021100]打印成功！ [2015-6-21 13:40:31]单据号[P1506210166]开始打印。。。 0]开始打印。。。 [2015-6-25 10:46:26]单据号[150625017100]打印成功！ [2015-6-25 10:46:34]单据号[P1506250174]开始打印。。。 [2015-6-25 10:46:37]单据号[P1506250174]打印成功！ [2015-6-25 10:47:58]单据号[150625017200]开始打印。。。 [2015-6-25 10:48:02]单据号[150625017200]打印成功！ [2015-6-25 10:49:22]单据号[P1506250175]开始打印。。。 [2015-6-25 10:49:26]单据号[P1506250175]打印成功！");
-
         }
 
         public void showMsg(string str)
@@ -510,6 +542,15 @@ namespace barcode
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
 
+        }
+
+        private void btnExit_Click(object sender, EventArgs e)
+        {
+            DialogResult dialogResult = MessageBox.Show("是否确定退出程序?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+            if (dialogResult == DialogResult.Yes)
+            {       
+                Data.exitApp();
+            }
         }
 
 

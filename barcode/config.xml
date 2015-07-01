@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" standalone="yes"?>
+<barcode>
+  <curServer>lan</curServer>
+  <server>
+    <name>wan</name>
+    <config><![CDATA[Data Source=61.175.244.158,14433;Database=HSFabricTrade_LYCK;persist security info=True;Connection Timeout=10;User ID=dyeinguser;Password=dyeing@2011]]></config>
+  </server>
+  <server>
+    <name>lan</name>
+    <config><![CDATA[Data Source=192.168.1.3,14433;Database=HSFabricTrade_LYCK;persist security info=True;Connection Timeout=10;User ID=dyeinguser;Password=dyeing@2011]]></config>
+  </server>
+
+</barcode>

@@ -12,14 +12,14 @@ using System.Text.RegularExpressions;
 
 namespace sqlmonitor
 {
-    public partial class Form1 : Form
+    public partial class sqlmonitor : Form
     {
         public System.Windows.Forms.Timer inter1 = new System.Windows.Forms.Timer();
         public string prevDebugStr = "";
 
         public bool commExited = false;
 
-        public Form1()
+        public sqlmonitor()
         {
             InitializeComponent();
 
@@ -29,8 +29,10 @@ namespace sqlmonitor
 
 
             //textBox1.Text = (WinCE.readMemFile());
-            
-            launchApp();
+
+            CONFIG.initServer();
+
+            //launchApp();
 
 
             WinCE.createMemFile("OK");
@@ -42,10 +44,13 @@ namespace sqlmonitor
             inter1.Tick += delegate { checkData(); };
             inter1.Enabled = true;
 
+            txtDebug.Visible = false;
+
         }
 
         public void debug(string str)
         {
+            if (!txtDebug.Visible) return;
             if (prevDebugStr == str) return;
             prevDebugStr = str;
             txtDebug.Text = str + "\r\n" + txtDebug.Text;
@@ -61,7 +66,7 @@ namespace sqlmonitor
             {
                 debug("EXIT");
                 Data.prevPutBuffer = "";
-                return;
+                //return;
                 
                 commExited = true;
                 exitApp();
@@ -148,21 +153,24 @@ namespace sqlmonitor
             }
         }
 
-        public void getDataAsync(string sn)
+        public string getDataAsync(string sn)
         {
 
             if (!Data.dataListSN.ContainsKey(sn))
             {
                 //beginGetData();
 
-                ThreadPool.QueueUserWorkItem(
-                    new WaitCallback(delegate(object state)
-                    { invokeGetData(sn); }), null
-                );
+                //ThreadPool.QueueUserWorkItem(
+                //    new WaitCallback(delegate(object state)
+                //    { invokeGetData(sn); }), null
+                //);
+
+                return getData(sn);
+
             }
             else
             {
-                updateLV(sn, Data.dataListSN[sn]);
+                return updateLV(sn, Data.dataListSN[sn]);
             }
 
         }
@@ -171,7 +179,9 @@ namespace sqlmonitor
 
             List<string> ret = new List<string> { };
             foreach (string sn in SNs) {
-                ret.Add(getData(sn));
+                string data = getDataAsync(sn);
+                ret.Add(data);
+                if(data.Contains("{@error@}")) break;
             }
             return string.Join("{@record@}", ret.ToArray() );
 
@@ -182,36 +192,22 @@ namespace sqlmonitor
             DataTable dt = null;
 
             string wh = sn.StartsWith("P", StringComparison.CurrentCultureIgnoreCase) ? " mmindtl.sPackageNo='" + sn + "'" : " mmindtl.sFabricNo='" + sn + "'";
+            string sql = @"select sdOrderHdr.sMaterialDesc as sCode,mmMaterial.sMaterialName as sName,mmInDtl.sColorNo as sColorNo, mmInDtl.nACPrice as nPrice, mmInDtl.sBatchNo as sBatch, mmFabric.sFactWidth as sWidth,  mmFabric.sUnit as sUnit, mmFabric.nNetWeight as nWeight, mmFabric.nQty as nQty, mmInDtl.sFabricNo as sFabricNo, mmInDtl.iFabricOrder as iFabricOrder, mmInDtl.iPackageOrder as iPackageOrder from mmInDtl left join mmFabric on mmFabric.sFabricNo = mmInDtl.sFabricNo left join sdOrderHdr on sdOrderHdr.sOrderNo = mmInDtl.sOrderNo left join mmMaterial on mmMaterial.uGUID = mmInDtl.ummMaterialGUID where " + wh;
+
             try
             {
-                dt = DB.Query(
-                    @"select 
-sdOrderHdr.sMaterialDesc as sCode,
-mmMaterial.sMaterialName as sName,
-mmInDtl.sColorNo as sColorNo, 
-mmInDtl.nACPrice as nPrice,
-mmInDtl.sBatchNo as sBatch, 
-mmFabric.sFactWidth as sWidth,  
-mmFabric.sUnit as sUnit, 
-mmFabric.nNetWeight as nWeight,
-mmFabric.nQty as nQty,
-mmInDtl.sFabricNo as sFabricNo,
-mmInDtl.iFabricOrder as iFabricOrder,
-mmInDtl.iPackageOrder as iPackageOrder
-                from mmInDtl 
-                left join mmFabric on mmFabric.sFabricNo = mmInDtl.sFabricNo 
-                left join sdOrderHdr on sdOrderHdr.sOrderNo = mmInDtl.sOrderNo 
-                left join mmMaterial on mmMaterial.uGUID = mmInDtl.ummMaterialGUID where "+wh
-                );
+                dt = DB.Query(sql);
             }
             catch (Exception e) {
+                string head = (sn + "{@head@}");
+
                 string str = "{@error@}" + e.Message;
                 //MessageBox.Show(str);
                 //Data.putBuffer = str;
-                return "";
+                return head+str;
             }
 
-            Data.dataListSN.Add(sn, dt);
+            if( !Data.dataListSN.ContainsKey(sn) ) Data.dataListSN.Add(sn, dt);
 
             return updateLV(sn, dt);
         }

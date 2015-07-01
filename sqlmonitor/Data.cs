@@ -7,6 +7,8 @@ using System.Data.SqlTypes;
 using System.Data.SqlClient;
 using System.Windows.Forms;
 using System.CodeDom.Compiler;
+using System.Xml;
+using System.IO;
 
 namespace sqlmonitor
 {
@@ -29,7 +31,7 @@ namespace sqlmonitor
         public static Form curForm = null;
         public static void showMsg(string str){
             if (curForm.Name == "Form1") {
-                ((Form1)curForm).showMsg(str);
+                ((sqlmonitor)curForm).showMsg(str);
             }
             if (curForm.Name == "Form2")
             {
@@ -41,9 +43,71 @@ namespace sqlmonitor
     }
 
 
+    public class CONFIG
+    {
+
+        public static string ConfigFile = @"\Program Files\barcode\config.xml";
+
+
+        public static string initServer()
+        {
+            if (!File.Exists(ConfigFile)) return "";
+
+            XmlDocument doc = new XmlDocument();
+            doc.Load(ConfigFile);
+
+            string cur = doc.SelectSingleNode("/barcode/curServer").InnerText;
+
+            XmlNode server = doc.SelectSingleNode("/barcode/server[name='" + cur + "']");
+            string ip = server.SelectSingleNode("config").InnerText;
+            DB.Sqlstr = ip;
+
+            return cur;
+        }
+
+        public static string getServer()
+        {
+            if (!File.Exists(ConfigFile)) return "";
+
+            XmlDocument doc = new XmlDocument();
+            doc.Load(ConfigFile);
+
+            string cur = doc.SelectSingleNode("/barcode/curServer").InnerText;
+
+            return cur;
+        }
+
+        public static string setServer(string servername)
+        {
+            if (!File.Exists(ConfigFile)) return "";
+
+            XmlDocument doc = new XmlDocument();
+            doc.Load(ConfigFile);
+
+            doc.SelectSingleNode("/barcode/curServer").InnerText = servername;
+
+            XmlNode server = doc.SelectSingleNode("/barcode/server[name='" + servername + "']");
+            string ip = server.SelectSingleNode("config").InnerText;
+            DB.Sqlstr = ip;
+
+            using (XmlTextWriter xtw = new XmlTextWriter(ConfigFile, Encoding.UTF8))
+            {
+                //xtw.Formatting = Formatting.Indented; // leave this out, it breaks EWP!
+                doc.WriteContentTo(xtw);
+            }
+
+            return "";
+        }
+
+
+
+
+    }
+
+
     public class DB {
 
-        static string Sqlstr = "Data Source=61.175.244.158,14433;Database=HSFabricTrade_LYCK;persist security info=True;Connection Timeout=10;User ID=dyeinguser;Password=dyeing@2011";
+        public static string Sqlstr = "Data Source=61.175.244.158,14433;Database=HSFabricTrade_LYCK;persist security info=True;Connection Timeout=10;User ID=dyeinguser;Password=dyeing@2011";
 
 
         public static DataTable Query(string sql)
@@ -58,7 +122,7 @@ namespace sqlmonitor
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("无法连接到数据库！" + ex.Message);
+                    //MessageBox.Show("无法连接到数据库！" + ex.Message);
                     Data.showMsg("NC!! " + ex.Message);
                     return null;
                 }

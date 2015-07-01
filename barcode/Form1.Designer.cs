@@ -42,6 +42,7 @@
             this.lblDuplicate = new System.Windows.Forms.LinkLabel();
             this.btnUpload = new System.Windows.Forms.Button();
             this.lblStatus = new System.Windows.Forms.Label();
+            this.btnExit = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.SuspendLayout();
@@ -149,7 +150,7 @@
             // 
             // btnUpload
             // 
-            this.btnUpload.Location = new System.Drawing.Point(46, 186);
+            this.btnUpload.Location = new System.Drawing.Point(124, 184);
             this.btnUpload.Name = "btnUpload";
             this.btnUpload.Size = new System.Drawing.Size(105, 32);
             this.btnUpload.TabIndex = 9;
@@ -157,10 +158,19 @@
             // 
             // lblStatus
             // 
-            this.lblStatus.Location = new System.Drawing.Point(157, 187);
+            this.lblStatus.Location = new System.Drawing.Point(92, 189);
             this.lblStatus.Name = "lblStatus";
             this.lblStatus.Size = new System.Drawing.Size(31, 20);
             this.lblStatus.Text = "NC!!";
+            // 
+            // btnExit
+            // 
+            this.btnExit.Location = new System.Drawing.Point(12, 184);
+            this.btnExit.Name = "btnExit";
+            this.btnExit.Size = new System.Drawing.Size(77, 32);
+            this.btnExit.TabIndex = 12;
+            this.btnExit.Text = "退出";
+            this.btnExit.Click += new System.EventHandler(this.btnExit_Click);
             // 
             // Form1
             // 
@@ -168,12 +178,13 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoScroll = true;
             this.ClientSize = new System.Drawing.Size(238, 295);
-            this.Controls.Add(this.lblStatus);
+            this.Controls.Add(this.btnExit);
             this.Controls.Add(this.btnUpload);
             this.Controls.Add(this.lblDuplicate);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.listBox1);
+            this.Controls.Add(this.lblStatus);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "Form1";
@@ -202,6 +213,7 @@
         private System.Windows.Forms.Button btnUpload;
         private System.Windows.Forms.Label lblStatus;
         private System.Windows.Forms.ListBox listBox1;
+        private System.Windows.Forms.Button btnExit;
     }
 }
 

@@ -25,19 +25,19 @@ namespace barcode
         public System.Windows.Forms.Timer inter1 = new System.Windows.Forms.Timer();
         public System.Windows.Forms.Timer inter2 = new System.Windows.Forms.Timer();
 
+        public Scaner scanner = new Scaner();
+
         public int count = 0;
         public string prevDebugStr = "";
-
-        public bool commExited = false;
 
         public Form2(Form1 prevForm)
         {
             form1 = prevForm;
             InitializeComponent();
 
-            //this.TopMost = true;
-            //this.FormBorderStyle = FormBorderStyle.None;
-            //this.WindowState = FormWindowState.Maximized;
+            this.TopMost = true;
+            this.FormBorderStyle = FormBorderStyle.None;
+            this.WindowState = FormWindowState.Maximized;
             
             this.lblDuplicate.Hide();
             this.lblDuplicate.BackColor = Color.Transparent;
@@ -62,6 +62,16 @@ namespace barcode
 
             this.Activated += new EventHandler(Form2_Activated);
 
+            //scanner.Open();
+            //scanner.ScanerDataReceived += new Scaner.ScanerDataReceivedHandler(scanner_ScanerDataReceived);
+
+        }
+
+
+
+        void scanner_ScanerDataReceived(object sender, string code)
+        {
+            MessageBox.Show(code);
         }
 
         void Form2_Activated(object sender, EventArgs e)
@@ -70,19 +80,15 @@ namespace barcode
             updateLisBox();
         }
 
-
-
-        public void exitApp() {
+        public void stopClock() {
+            inter1.Enabled = false;
             inter2.Enabled = false;
-            inter2.Dispose();
-            WinCE.createMemFile("EXIT");
-            if (commExited) WinCE.closeMemFile();
-            //this.Close();
-            Application.Exit();
         }
 
+        
+
         public void exitApp(object obj, EventArgs e) {
-            exitApp();
+            Data.exitApp();
         }
 
         public void debug(string str) {
@@ -105,10 +111,10 @@ namespace barcode
             {
                 debug("EXIT");
                 Data.prevPutBuffer = "";
-                return;
+                //return;
 
-                commExited = true;
-                exitApp();
+                Data.commExited = true;
+                Data.exitApp();
                 return;
             }
 
@@ -141,15 +147,37 @@ namespace barcode
                 
                 string[] records = Regex.Split(sql, "{@record@}");
 
-                foreach (string rec in records)
+                string firstSN = "";
+
+                for (int i=0; i<records.Length; i++)
                 {
+                    string rec = records[i];
+                    
                     string[] lines = Regex.Split(rec, "{@head@}");
+
                     if (lines.Length > 1)
                     {
                         string sn = lines[0];
-                        Data.dataListSN2.Add(sn, lines[1]);
-                        updateLV2(sn, lines[1]);
+                        string result = lines[1];
+                        
+                        if( result.StartsWith("{@error@}") ){
+                            Data.showMsg("NC!!");
+                            continue;
+                        }
+
+                        if (i == 0) firstSN = lines[0];
+
+                        if (!Data.dataListSN2.ContainsKey(sn)) Data.dataListSN2.Add(sn, result);
+                        updateLV2(sn, result, false);
                     }
+                }
+                
+                if (firstSN!="")
+                {
+                    Data.prevSN = "";
+                    Data.prevSN2 = "";
+                    string result = Data.dataListSN2.ContainsKey(firstSN) ? Data.dataListSN2[firstSN] : "";
+                    updateLV2(firstSN, result, true);
                 }
 
                 return;
@@ -159,7 +187,18 @@ namespace barcode
         }
 
 
-        
+        public codeClass getCodeFromListbox( int index ) {
+            int prevIdx = listBox1.SelectedIndex;
+
+            listBox1.Enabled = false;
+            listBox1.SelectedIndex = index;
+            var code = ((codeClass)(listBox1.SelectedItem));
+            listBox1.SelectedIndex = prevIdx;
+            listBox1.Enabled = true;
+
+            return code;
+
+        }
 
 
 
@@ -209,7 +248,7 @@ namespace barcode
             }
             else 
             {
-                updateLV2(sn, Data.dataListSN2[ sn ] );
+                updateLV2(sn, Data.dataListSN2[ sn ], true );
             }
             
         }
@@ -248,8 +287,8 @@ mmInDtl.iPackageOrder as iPackageOrder
             }
 
             if (object.ReferenceEquals(null, dt)) return;
-            
-            Data.dataListSN.Add(sn, dt);
+
+            if (!Data.dataListSN.ContainsKey(sn) ) Data.dataListSN.Add(sn, dt);
 
             updateLV(dt);
             
@@ -288,17 +327,18 @@ mmInDtl.iPackageOrder as iPackageOrder
         }
 
 
-        public void updateLV2(string sn, string sql)
+        public void updateLV2(string sn, string sql, bool updateUI)
         {
 
             if ( Data.prevSN2==sn ) return;
 
             Data.prevSN2 = sn;
 
-            lv.Items.Clear();
+            if (updateUI) lv.Items.Clear();
 
             var thePack = Data.getCodeFromList(sn);
 
+            if (object.ReferenceEquals(null, thePack)) return;
 
             if (sql == "")
             {
@@ -329,33 +369,36 @@ mmInDtl.iPackageOrder as iPackageOrder
 
                     thePack.addRow(row);
 
-                    ListViewItem item = new ListViewItem(row[0].ToString());
+                    if (updateUI)
+                    {
+                        ListViewItem item = new ListViewItem(row[0].ToString());
 
-                    var BatchNo = row[4].ToString();
-                    BatchNo = (BatchNo != "" ? "[" + BatchNo + "]" : "");
+                        var BatchNo = row[4].ToString();
+                        BatchNo = (BatchNo != "" ? "[" + BatchNo + "]" : "");
 
-                    string num = row[6].ToString().ToUpper() == "KG" ? String.Format("{0:0.0}", row[7]) : String.Format("{0:0.0}", row[8]);
+                        string num = row[6].ToString().ToUpper() == "KG" ? String.Format("{0:0.0}", row[7]) : String.Format("{0:0.0}", row[8]);
 
-                    item.SubItems.Add(row[1].ToString());
-                    item.SubItems.Add(row[2].ToString() + BatchNo);
-                    item.SubItems.Add(num + row[6]);
-                    item.SubItems.Add(row[9].ToString());
+                        item.SubItems.Add(row[1].ToString());
+                        item.SubItems.Add(row[2].ToString() + BatchNo);
+                        item.SubItems.Add(num + row[6]);
+                        item.SubItems.Add(row[9].ToString());
 
-                    lv.Items.Add(item);
+                        lv.Items.Add(item);
+                    }
                 }
 
+            }
+
+            if (updateUI)
+            {
                 foreach (ColumnHeader col in lv.Columns)
                 {
 
                     col.Width = -1;
                 }
-
+                updateLisBox();
+                lblFolder.Text = folder.ToString();
             }
-
-            updateLisBox();
-
-            lblFolder.Text = folder.ToString();
-
         }
 
 
@@ -365,6 +408,9 @@ mmInDtl.iPackageOrder as iPackageOrder
 
             switch (e.KeyCode.ToString())
             {
+                case "Enter":
+                    break;
+
                 case "F1":
                 case "F4":
                     textBox1.Focus();
@@ -378,7 +424,9 @@ mmInDtl.iPackageOrder as iPackageOrder
                 case "Escape":
                     hideMe();
                     break;
-
+                case "Down":
+                    listBox1.Focus();
+                    break;
                 case "Return":
                     btnAdd_Click(sender, e);
                     break;
@@ -459,6 +507,10 @@ mmInDtl.iPackageOrder as iPackageOrder
                     break;
 
                 case "Up":
+                    if (listBox1.SelectedIndex == 0) {
+                        textBox1.Focus();
+                    }
+
                     //e.Handled = true;
                     //listBox1.SelectedIndex = Math.Max( listBox1.SelectedIndex-1, 0 );
                     break;
@@ -488,11 +540,21 @@ mmInDtl.iPackageOrder as iPackageOrder
             {
                 updateLisBox();
 
+                if (listBox1.SelectedIndex == -1) return;
+                string sn = getCodeFromListbox( listBox1.SelectedIndex ).Id;
+                Data.prevSN = "";
+                Data.prevSN2 = "";
+                string result = Data.dataListSN2.ContainsKey(sn) ? Data.dataListSN2[sn] : "";
+                updateLV2(sn, result, true);
+
+                listBox1.Focus();
+
             }
         }
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
+            
             var idx = listBox1.SelectedIndex;
 
             if (idx == -1) return;
@@ -507,7 +569,7 @@ mmInDtl.iPackageOrder as iPackageOrder
         }
 
         
-        public void addLisBox(codeClass code)
+        public void addLisBox(codeClass code, bool moveToTop)
         {
             if (code.Id == "")
             {
@@ -519,9 +581,14 @@ mmInDtl.iPackageOrder as iPackageOrder
                 return;
             }
 
+            if (code.Id.Length < 8) return;
+
             Data.codeList.Insert(0,code);
+            lv.Items.Clear();
 
             updateLisBox();
+
+            if (moveToTop) listBox1.SelectedIndex = 0;
 
         }
 
@@ -529,8 +596,8 @@ mmInDtl.iPackageOrder as iPackageOrder
         {
             var idx = listBox1.SelectedIndex;
             if (idx == -1) idx = Data.codeList.Count - 1;
-            addLisBox(new codeClass( textBox1.Text, folder.Id ));
-            listBox1.SelectedIndex = 0;
+            addLisBox(new codeClass( textBox1.Text, folder.Id ), true);
+            
             //textBox1.Focus();
             textBox1.Text = "";
             textBox1.Focus();
@@ -581,6 +648,7 @@ mmInDtl.iPackageOrder as iPackageOrder
         private void textBox1_GotFocus(object sender, EventArgs e)
         {
             textBox1.SelectAll();
+            //scanner.Open();
         }
 
         private void Form2_Load(object sender, EventArgs e)
@@ -758,7 +826,10 @@ mmInDtl.iPackageOrder as iPackageOrder
         }
 
         void hideMe() {
+            inter2.Enabled = false;
+
             this.Hide();
+            Data.curForm = form1;
             form1.updateLisBox();
         }
 

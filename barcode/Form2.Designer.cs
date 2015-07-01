@@ -55,7 +55,7 @@
             this.panel1.Controls.Add(this.textBox1);
             this.panel1.Controls.Add(this.btnAdd);
             this.panel1.Controls.Add(this.label2);
-            this.panel1.Location = new System.Drawing.Point(10, 0);
+            this.panel1.Location = new System.Drawing.Point(10, 7);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(220, 33);
             // 
@@ -123,7 +123,7 @@
             this.lv.Items.Add(listViewItem4);
             this.lv.Location = new System.Drawing.Point(10, 179);
             this.lv.Name = "lv";
-            this.lv.Size = new System.Drawing.Size(220, 93);
+            this.lv.Size = new System.Drawing.Size(220, 100);
             this.lv.TabIndex = 10;
             this.lv.View = System.Windows.Forms.View.Details;
             this.lv.KeyDown += new System.Windows.Forms.KeyEventHandler(this.lv_KeyDown);
@@ -175,7 +175,7 @@
             // 
             // lblStatus
             // 
-            this.lblStatus.Location = new System.Drawing.Point(0, 156);
+            this.lblStatus.Location = new System.Drawing.Point(199, 156);
             this.lblStatus.Name = "lblStatus";
             this.lblStatus.Size = new System.Drawing.Size(31, 20);
             this.lblStatus.Text = "NC!!";
@@ -186,13 +186,13 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoScroll = true;
             this.ClientSize = new System.Drawing.Size(238, 295);
+            this.Controls.Add(this.lblStatus);
             this.Controls.Add(this.txtDebug);
             this.Controls.Add(this.lblFolder);
             this.Controls.Add(this.lv);
             this.Controls.Add(this.lblDuplicate);
             this.Controls.Add(this.listBox1);
             this.Controls.Add(this.panel1);
-            this.Controls.Add(this.lblStatus);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "Form2";

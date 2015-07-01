@@ -1,6 +1,6 @@
 ﻿namespace sqlmonitor
 {
-    partial class Form1
+    partial class sqlmonitor
     {
         /// <summary>
         /// 必需的设计器变量。
@@ -51,7 +51,7 @@
             this.txtDebug.Size = new System.Drawing.Size(121, 42);
             this.txtDebug.TabIndex = 1;
             // 
-            // Form1
+            // sqlmonitor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
@@ -59,8 +59,8 @@
             this.ClientSize = new System.Drawing.Size(129, 65);
             this.Controls.Add(this.txtDebug);
             this.Controls.Add(this.label1);
-            this.Name = "Form1";
-            this.Text = "Form1";
+            this.Name = "sqlmonitor";
+            this.Text = "数据库监测";
             this.ResumeLayout(false);
 
         }

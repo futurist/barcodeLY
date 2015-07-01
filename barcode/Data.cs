@@ -8,14 +8,22 @@ using System.Data.SqlClient;
 using System.Windows.Forms;
 using System.CodeDom.Compiler;
 using System.IO;
+using System.Text.RegularExpressions;
+using System.Xml;
+
 
 namespace barcode
 {
     class Data
     {
+
+        public static void ShowMessage( string str) {
+            MessageBox.Show(str, "", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+        }
+
         public static Dictionary<string, string> cacheDict = new Dictionary<string, string> { };
 
-        public static string cacheFolder = @"\Application\barcode\";
+        public static string cacheFolder = @"\Application\barcode\cache\";
 
         public static void cacheToFile(string folderId) { 
             
@@ -31,7 +39,6 @@ namespace barcode
             if ( curFileContent!="" && cacheDict[folderId] != curFileContent)
             {
                 cacheDict[folderId] = curFileContent;
-
                 try
                 {
                     if (!Directory.Exists(cacheFolder)) {
@@ -55,14 +62,49 @@ namespace barcode
                     ws.Write(curFileContent);
                     ws.Close();
                 }catch(Exception e){
-                    MessageBox.Show("Exception: " + e.Message);
+                    Data.ShowMessage("Exception: " + e.Message);
                 }
                 //File.WriteAllText(@"\\Application\\barcode\\" + folderId, curFileContent);
             }
         
         }
 
+        public static string checkFileCache(string folderId)
+        {
+            if (folderId == "") return "";
+            string filepath = cacheFolder + folderId + ".txt";
 
+            if (!File.Exists(filepath)) return "";
+
+            var file = new StreamReader(filepath);
+            string str = file.ReadToEnd();
+            file.Close();
+
+            if (str == "") return "";
+
+            return str;
+        }
+
+
+        public static void updateFolderFromStr(string folderId, string str)
+        {
+            
+            var folder = getFolderFromList(folderId);
+            if (object.ReferenceEquals(null, folder)) return;
+
+            if (str == "") return;
+
+            string[] line = Regex.Split(str, "{br}");
+            foreach (string id in line) {
+                if(id!="") codeList.Add(new codeClass(id, folderId));
+            }
+
+        }
+
+        public static void deleteAllFileCache()
+        {
+            Directory.Delete(cacheFolder, true);
+        }
 
 
         public static List<folderClass> folderList = new List<folderClass> { };
@@ -124,7 +166,7 @@ namespace barcode
 
         public static string putBuffer = "";
         public static string prevPutBuffer = "";
-
+        public static bool commExited = false;
 
         public static Dictionary<string, DataTable> dataListSN = new Dictionary<string, DataTable>();
         public static Dictionary<string, string> dataListSN2 = new Dictionary<string, string>();
@@ -139,6 +181,22 @@ namespace barcode
                 ((Form2)curForm).showMsg(str);
             }
 
+        }
+
+        public static void exitApp() {
+            if (curForm.Name == "Form1")
+            {
+                ((Form1)curForm).stopClock();
+            }
+            if (curForm.Name == "Form2")
+            {
+                ((Form2)curForm).stopClock();
+            }
+
+            WinCE.createMemFile("EXIT");
+            if (commExited) WinCE.closeMemFile();
+            //this.Close();
+            Application.Exit();
         }
 
 
@@ -189,7 +247,7 @@ namespace barcode
 
                 if (ret < 0)
                 {
-                    MessageBox.Show("网络连接有误,请手动在电脑上更改备注以同步");
+                    Data.ShowMessage("网络连接有误,请手动在电脑上更改备注以同步");
                 }
             }
 
@@ -221,7 +279,7 @@ N'" + folder.Id + "',N'NEW',2,0,N'{637A600B-C40F-4933-991F-4426374649D2}',N'{49C
 
                     if (ret < 0)
                     {
-                        MessageBox.Show("网络连接有误,请重试");
+                        Data.ShowMessage("网络连接有误,请重试");
                         return false;
                     }
 
@@ -229,7 +287,7 @@ N'" + folder.Id + "',N'NEW',2,0,N'{637A600B-C40F-4933-991F-4426374649D2}',N'{49C
                     DataTable dt = DB.Query("select top 1 sStoreOutNo from mmOutHdr where sRemark=N'" + folder.Id + "' order by tCreateTime desc ");
                     if (object.ReferenceEquals(dt, null) || dt.Rows.Count == 0)
                     {
-                        MessageBox.Show("生成单据有误,请重试");
+                        Data.ShowMessage("生成单据有误,请重试");
                         return false;
                     }
 
@@ -264,7 +322,7 @@ left join mmPurchaseContractDtl on mmPurchaseContractDtl.uGUID=mmInDtl.ummPurcha
 left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDtl.sFabricNo in ( " + sNO + " ) and not exists ( select 1 from mmOutDtl b where mmInDtl.sFabricNo=b.sFabricNo )");
                     if (ret < 0)
                     {
-                        MessageBox.Show("插入条码有误,请重试");
+                        Data.ShowMessage("插入条码有误,请重试");
                         return false;
                     }
                 }
@@ -278,7 +336,7 @@ left join mmPurchaseContractDtl on mmPurchaseContractDtl.uGUID=mmInDtl.ummPurcha
 left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDtl.sPackageNo in ( " + sNO + " ) and not exists ( select 1 from mmOutDtl b where mmInDtl.sFabricNo=b.sFabricNo )");
                     if (ret < 0)
                     {
-                        MessageBox.Show("插入条码有误,请重试");
+                        Data.ShowMessage("插入条码有误,请重试");
                         return false;
                     }
                 }
@@ -288,7 +346,7 @@ left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDt
 
             }
 
-            MessageBox.Show("上传数据成功！");
+            Data.ShowMessage("上传数据成功！");
 
             return true;
         }
@@ -466,9 +524,71 @@ left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDt
 
     }
 
+
+    public class CONFIG {
+
+        public static string ConfigFile = @"\Program Files\barcode\config.xml";
+
+
+        public static string initServer()
+        {
+            if (!File.Exists(ConfigFile)) return "";
+
+            XmlDocument doc = new XmlDocument();
+            doc.Load(ConfigFile);
+
+            string cur = doc.SelectSingleNode("/barcode/curServer").InnerText;
+
+            XmlNode server = doc.SelectSingleNode("/barcode/server[name='" + cur + "']");
+            string ip = server.SelectSingleNode("config").InnerText;
+            DB.Sqlstr = ip;
+
+            return cur;
+        }
+
+        public static string getServer()
+        {
+            if(!File.Exists(ConfigFile) ) return "";
+
+            XmlDocument doc = new XmlDocument();
+            doc.Load( ConfigFile );
+
+            string cur = doc.SelectSingleNode("/barcode/curServer").InnerText;
+
+            return cur;
+        }
+
+        public static string setServer(string servername)
+        {
+            if (!File.Exists(ConfigFile)) return "";
+
+            XmlDocument doc = new XmlDocument();
+            doc.Load(ConfigFile);
+
+            doc.SelectSingleNode("/barcode/curServer").InnerText = servername;
+
+            XmlNode server = doc.SelectSingleNode("/barcode/server[name='" + servername + "']");
+            string ip = server.SelectSingleNode("config").InnerText;
+            DB.Sqlstr = ip;
+
+            using (XmlTextWriter xtw = new XmlTextWriter(ConfigFile, Encoding.UTF8))
+            {
+                //xtw.Formatting = Formatting.Indented; // leave this out, it breaks EWP!
+                doc.WriteContentTo(xtw);
+            }
+
+            return "";
+        }
+
+
+    
+    
+    }
+
+
     public class DB {
 
-        static string Sqlstr = "Data Source=61.175.244.158,14433;Database=HSFabricTrade_LYCK;persist security info=True;Connection Timeout=10;User ID=dyeinguser;Password=dyeing@2011";
+        public static string Sqlstr = "Data Source=61.175.244.158,14433;Database=HSFabricTrade_LYCK;persist security info=True;Connection Timeout=10;User ID=dyeinguser;Password=dyeing@2011";
 
 
         public static DataTable Query(string sql)
@@ -482,7 +602,7 @@ left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDt
                 }
                 catch (Exception ex)
                 {
-                    //MessageBox.Show("无法连接到数据库！" + ex.Message);
+                    //Data.ShowMessage("无法连接到数据库！" + ex.Message);
                     Data.showMsg("NC!! " + ex.Message);
                     return null;
                 }
@@ -508,7 +628,7 @@ left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDt
                 }
                 catch (Exception ex)
                 {
-                    //MessageBox.Show("无法连接到数据库！" + ex.Message);
+                    //Data.ShowMessage("无法连接到数据库！" + ex.Message);
                     Data.showMsg("NC!! " + ex.Message);
                     return -1;
                 }
@@ -518,7 +638,7 @@ left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDt
                 }
                 catch (Exception ex)
                 {
-                    //MessageBox.Show("无法连接到数据库！" + ex.Message);
+                    //Data.ShowMessage("无法连接到数据库！" + ex.Message);
                     Data.showMsg("NC!! " + ex.Message);
                     return -1;
                 }
@@ -574,7 +694,7 @@ left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDt
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.ToString());
+                Data.ShowMessage(ex.ToString());
             }
             return isInserted;
         }
@@ -610,7 +730,7 @@ left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDt
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.ToString());
+                Data.ShowMessage(ex.ToString());
             }
             return isUpdated;
         }
@@ -640,7 +760,7 @@ left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDt
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.ToString());
+                Data.ShowMessage(ex.ToString());
             }
             return isDeleted;
         }
