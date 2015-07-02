@@ -17,7 +17,10 @@ namespace barcode
     class Data
     {
 
-        public static void ShowMessage( string str) {
+        public static void debug(string str) { }
+
+        public static void ShowMessage(string str)
+        {
             MessageBox.Show(str, "", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
         }
 
@@ -25,30 +28,34 @@ namespace barcode
 
         public static string cacheFolder = @"\Application\barcode\cache\";
 
-        public static void cacheToFile(string folderId) { 
-            
-            List<string> s = new List<string>{};
+        public static void cacheToFile(string folderId)
+        {
+
+            List<string> s = new List<string> { };
             var codes = getCodesFromFolder(folderId);
-            foreach(var c in codes){
+            foreach (var c in codes)
+            {
                 s.Add(c.Id);
             }
             string curFileContent = string.Join("{br}", s.ToArray());
-            if (!cacheDict.ContainsKey(folderId)) {
+            if (!cacheDict.ContainsKey(folderId))
+            {
                 cacheDict.Add(folderId, "");
             }
-            if ( curFileContent!="" && cacheDict[folderId] != curFileContent)
+            if (curFileContent != "" && cacheDict[folderId] != curFileContent)
             {
                 cacheDict[folderId] = curFileContent;
                 try
                 {
-                    if (!Directory.Exists(cacheFolder)) {
+                    if (!Directory.Exists(cacheFolder))
+                    {
                         Directory.CreateDirectory(cacheFolder);
                     }
 
                     string filepath = cacheFolder + folderId + ".txt";
 
                     //StreamWriter file = null;
-                    
+
                     //if (!File.Exists(filepath))
                     //{
                     //    file = File.CreateText(filepath);
@@ -61,12 +68,14 @@ namespace barcode
 
                     ws.Write(curFileContent);
                     ws.Close();
-                }catch(Exception e){
+                }
+                catch (Exception e)
+                {
                     Data.ShowMessage("Exception: " + e.Message);
                 }
                 //File.WriteAllText(@"\\Application\\barcode\\" + folderId, curFileContent);
             }
-        
+
         }
 
         public static string checkFileCache(string folderId)
@@ -86,17 +95,52 @@ namespace barcode
         }
 
 
+        public static string renameFileCache(string folderId, string newfolderId)
+        {
+            if (folderId == "") return "";
+            string filepath = cacheFolder + folderId + ".txt";
+            string newfilepath = cacheFolder + newfolderId + ".txt";
+
+            if (!File.Exists(filepath)) return "";
+
+            File.Delete(newfilepath);
+
+            try
+            {
+                File.Move(filepath, newfilepath); // Try to move
+            }
+            catch (IOException e)
+            {
+                debug(e.Message);
+            }
+
+            return "";
+        }
+
+        public static string deleteFileCache(string folderId)
+        {
+            if (folderId == "") return "";
+            string filepath = cacheFolder + folderId + ".txt";
+
+            if (!File.Exists(filepath)) return "";
+
+            File.Delete(filepath);
+
+            return "";
+        }
+
         public static void updateFolderFromStr(string folderId, string str)
         {
-            
+
             var folder = getFolderFromList(folderId);
             if (object.ReferenceEquals(null, folder)) return;
 
             if (str == "") return;
 
             string[] line = Regex.Split(str, "{br}");
-            foreach (string id in line) {
-                if(id!="") codeList.Add(new codeClass(id, folderId));
+            foreach (string id in line)
+            {
+                if (id != "") codeList.Add(new codeClass(id, folderId));
             }
 
         }
@@ -136,7 +180,8 @@ namespace barcode
             var CL = new List<codeClass> { };
             foreach (var c in codeList)
             {
-                if (c.Folder == folder) {
+                if (c.Folder == folder)
+                {
                     CL.Add(c);
                 }
             }
@@ -148,7 +193,7 @@ namespace barcode
             var CL = new List<string> { };
             foreach (var c in codeList)
             {
-                if (c.Folder == folder && c.OrderNo=="")
+                if (c.Folder == folder && c.OrderNo == "")
                 {
                     CL.Add(c.Id);
                 }
@@ -172,8 +217,10 @@ namespace barcode
         public static Dictionary<string, string> dataListSN2 = new Dictionary<string, string>();
 
         public static Form curForm = null;
-        public static void showMsg(string str){
-            if (curForm.Name == "Form1") {
+        public static void showMsg(string str)
+        {
+            if (curForm.Name == "Form1")
+            {
                 ((Form1)curForm).showMsg(str);
             }
             if (curForm.Name == "Form2")
@@ -183,7 +230,8 @@ namespace barcode
 
         }
 
-        public static void exitApp() {
+        public static void exitApp()
+        {
             if (curForm.Name == "Form1")
             {
                 ((Form1)curForm).stopClock();
@@ -211,21 +259,24 @@ namespace barcode
             return r.IsMatch(strNumber);
         }
 
-        public static void deleteFolder(string id, int pos) {
-            
-            for (int i=0; i<codeList.Count; i++) {
+        public static void deleteFolder(string id, int pos)
+        {
+
+            for (int i = 0; i < codeList.Count; i++)
+            {
                 var code = codeList[i];
-                if (code.Folder == id) {
+                if (code.Folder == id)
+                {
                     codeList.Remove(code);
                     i--;
                 }
-                
+
             }
 
 
             folderList.RemoveAt(pos);
 
-            
+            deleteFileCache(id);
         }
 
 
@@ -243,7 +294,7 @@ namespace barcode
 
             if (folderList[pos].Code != "")
             {
-                int ret = DB.Exec(@"update mmOutHdr set sRemark=N'"+ newid +"' where sStoreOutNo = N'" + folderList[pos].Code + "'");
+                int ret = DB.Exec(@"update mmOutHdr set sRemark=N'" + newid + "' where sStoreOutNo = N'" + folderList[pos].Code + "'");
 
                 if (ret < 0)
                 {
@@ -251,18 +302,21 @@ namespace barcode
                 }
             }
 
+            renameFileCache(oldId, newid);
 
             folderList[pos].Id = newid;
+
 
         }
 
 
 
-        public static bool Upload() {
+        public static bool Upload()
+        {
 
             if (folderList.Count == 0) return false;
 
-            Dictionary<string, string> codeDict = new Dictionary<string , string >();
+            Dictionary<string, string> codeDict = new Dictionary<string, string>();
 
             foreach (folderClass folder in folderList)
             {
@@ -304,10 +358,12 @@ N'" + folder.Id + "',N'NEW',2,0,N'{637A600B-C40F-4933-991F-4426374649D2}',N'{49C
                 {
                     if (code.Folder == folder.Id)
                     {
-                        if(code.IsPackage)
+                        if (code.IsPackage)
                         {
-                            packageNos.Add(String.Format("N'{0}'", code.Id)); 
-                        }else{
+                            packageNos.Add(String.Format("N'{0}'", code.Id));
+                        }
+                        else
+                        {
                             fabricNos.Add(String.Format("N'{0}'", code.Id));
                         }
                     }
@@ -342,7 +398,7 @@ left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDt
                 }
 
 
-                if(curForm!=null && curForm.Name=="Form1") ((Form1)curForm).updateLisBox();
+                if (curForm != null && curForm.Name == "Form1") ((Form1)curForm).updateLisBox();
 
             }
 
@@ -375,16 +431,18 @@ left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDt
         public override string ToString()
         {
             int NO = 0;
-            int packNum=0;
-            int rollNum=0;
-            double lengthM=0;
+            int packNum = 0;
+            int rollNum = 0;
+            double lengthM = 0;
             double lengthYD = 0;
             double lengthKG = 0;
 
-            foreach( var code in Data.codeList ){
-                if (code.Folder == this.Id) {
+            foreach (var code in Data.codeList)
+            {
+                if (code.Folder == this.Id)
+                {
                     NO++;
-                    if(code.IsPackage) packNum++;
+                    if (code.IsPackage) packNum++;
                     rollNum += code.IsPackage ? code.Rolls.Count : 1;
                     foreach (var r in code.Rolls)
                     {
@@ -404,7 +462,7 @@ left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDt
                 }
             }
 
-            Text = String.Format("[{0:0}]", NO)+ String.Format("[{0:0}][{1:0}][{2:0}M+{3:0}Y+{4:0}KG]", packNum, rollNum, lengthM, lengthYD, lengthKG );
+            Text = String.Format("[{0:0}]", NO) + String.Format("[{0:0}][{1:0}][{2:0}M+{3:0}Y+{4:0}KG]", packNum, rollNum, lengthM, lengthYD, lengthKG);
 
             return Id + (Text != "" ? ":" + Text : "") + (Code != "" ? ":" + Code : "");
         }
@@ -424,57 +482,67 @@ left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDt
             this.Id = id;
             this.OrderNo = "";
             this.Folder = folder;
-            this.Rolls = new List<rollClass>{};
+            this.Rolls = new List<rollClass> { };
             this.IsPackage = id.StartsWith("P", StringComparison.CurrentCultureIgnoreCase);
         }
 
-        public void addRow(string []row) {
+        public void addRow(string[] row)
+        {
             bool isNew = true;
-            foreach (var r in this.Rolls) {
+            foreach (var r in this.Rolls)
+            {
                 if (r.sFabricNo == row[9])
                 {
                     isNew = false;
                     break;
                 }
             }
-            if(isNew) this.Rolls.Add(new rollClass(row));
+            if (isNew) this.Rolls.Add(new rollClass(row));
         }
 
         public override string ToString()
         {
-            var orderNO="";
+            var orderNO = "";
 
-            if ( object.ReferenceEquals(null, this.OrderNo))
+            if (object.ReferenceEquals(null, this.OrderNo))
             {
                 orderNO = "!!!!";
-            }else if (string.IsNullOrEmpty(this.OrderNo))
-            { 
-                orderNO = this.IsPackage ?  "----" : "****";
             }
-            else if ( Data.IsNumber(this.OrderNo) )
+            else if (string.IsNullOrEmpty(this.OrderNo))
+            {
+                orderNO = this.IsPackage ? "----" : "****";
+            }
+            else if (Data.IsNumber(this.OrderNo))
             {
                 orderNO = (this.IsPackage ? String.Format("{0,4}", OrderNo) : String.Format("{0,4}", OrderNo).Replace(" ", "*"));
             }
-            else {
+            else
+            {
                 orderNO = this.OrderNo;
             }
 
             int rollNum = 0;
-            
+
             string detail = "";
             string MaxKey = "";
             int MaxVal = 0;
-            
+
             Dictionary<string, int> dict = new Dictionary<string, int> { };
-            if (IsPackage && Rolls.Count > 0) {
-                foreach (var r in Rolls) {
+            if (IsPackage && Rolls.Count > 0)
+            {
+                foreach (var r in Rolls)
+                {
                     rollNum++;
-                    if( !dict.ContainsKey(r.sCode) ){
-                        dict.Add(r.sCode,1);
-                    }else{
+                    if (!dict.ContainsKey(r.sCode))
+                    {
+                        dict.Add(r.sCode, 1);
+                    }
+                    else
+                    {
                         dict[r.sCode]++;
                     }
-                    if (dict[r.sCode] > MaxVal) {
+                    if (dict[r.sCode] > MaxVal)
+                    {
                         MaxVal = dict[r.sCode];
                         MaxKey = r.sCode;
                     }
@@ -490,7 +558,8 @@ left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDt
     }
 
 
-    public class rollClass {
+    public class rollClass
+    {
         public int iFabricOrder { get; set; }
         public int iPackageOrder { get; set; }
         public string sCode { get; set; }
@@ -514,18 +583,19 @@ left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDt
             this.sBatch = row[4];
             this.sWidth = row[5];
             this.sUnit = row[6];
-            this.nWeight = string.IsNullOrEmpty( row[7])? 0 : Convert.ToDouble(row[7]);
+            this.nWeight = string.IsNullOrEmpty(row[7]) ? 0 : Convert.ToDouble(row[7]);
             this.nQty = string.IsNullOrEmpty(row[8]) ? 0 : Convert.ToDouble(row[8]);
             this.sFabricNo = row[9];
             this.iFabricOrder = string.IsNullOrEmpty(row[10]) ? 0 : Convert.ToInt16(row[10]);
             this.iPackageOrder = string.IsNullOrEmpty(row[11]) ? 0 : Convert.ToInt16(row[11]);
-        
+
         }
 
     }
 
 
-    public class CONFIG {
+    public class CONFIG
+    {
 
         public static string ConfigFile = @"\Program Files\barcode\config.xml";
 
@@ -548,14 +618,11 @@ left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDt
 
         public static string getServer()
         {
-            if(!File.Exists(ConfigFile) ) return "";
+            if (!File.Exists(ConfigFile)) return "";
 
-            XmlDocument doc = new XmlDocument();
-            doc.Load( ConfigFile );
-
-            string cur = doc.SelectSingleNode("/barcode/curServer").InnerText;
-
-            return cur;
+            string cur = initServer();
+            string test = DB.TestConn()?"连接成功":"连接失败";
+            return cur + test;
         }
 
         public static string setServer(string servername)
@@ -577,19 +644,40 @@ left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDt
                 doc.WriteContentTo(xtw);
             }
 
+            string test = DB.TestConn() ? "连接成功" : "连接失败";
+            MessageBox.Show(servername + test);
+
             return "";
         }
 
 
-    
-    
+
+
     }
 
 
-    public class DB {
+    public class DB
+    {
 
         public static string Sqlstr = "Data Source=61.175.244.158,14433;Database=HSFabricTrade_LYCK;persist security info=True;Connection Timeout=10;User ID=dyeinguser;Password=dyeing@2011";
 
+
+        public static bool TestConn()
+        {
+            using (SqlConnection conn = new SqlConnection(Sqlstr))
+            {
+                try
+                {
+                    conn.Open();
+                }
+                catch (Exception ex)
+                {
+                    //Data.ShowMessage("无法连接到数据库！" + ex.Message);
+                    return false;
+                }
+            }
+            return true;
+        }
 
         public static DataTable Query(string sql)
         {
@@ -654,7 +742,8 @@ left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDt
      * Method with SqlCommand or SqlDataAdapter
      * 
      * **/
-    public class DataAccessLayer {
+    public class DataAccessLayer
+    {
 
         //Insert
         private bool Insert(string firstName, string lastName, string synonym)

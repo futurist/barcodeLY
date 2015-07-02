@@ -29,8 +29,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem();
-            System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem();
+            System.Windows.Forms.ListViewItem listViewItem7 = new System.Windows.Forms.ListViewItem();
+            System.Windows.Forms.ListViewItem listViewItem8 = new System.Windows.Forms.ListViewItem();
             this.mainMenu1 = new System.Windows.Forms.MainMenu();
             this.panel1 = new System.Windows.Forms.Panel();
             this.textBox1 = new Neolix.Device.ScanTextBox();
@@ -44,10 +44,12 @@
             this.color = new System.Windows.Forms.ColumnHeader();
             this.num = new System.Windows.Forms.ColumnHeader();
             this.sn = new System.Windows.Forms.ColumnHeader();
-            this.lblFolder = new System.Windows.Forms.LinkLabel();
             this.txtDebug = new System.Windows.Forms.TextBox();
             this.lblStatus = new System.Windows.Forms.Label();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.lblFolder = new System.Windows.Forms.LinkLabel();
             this.panel1.SuspendLayout();
+            this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -113,14 +115,14 @@
             this.lv.Columns.Add(this.num);
             this.lv.Columns.Add(this.sn);
             this.lv.FullRowSelect = true;
-            listViewItem3.Text = "AAAAA2134";
-            listViewItem3.SubItems.Add("sdfsdf");
-            listViewItem3.SubItems.Add("sdfsdsd");
-            listViewItem4.Text = "BBBBB";
-            listViewItem4.SubItems.Add("111");
-            listViewItem4.SubItems.Add("222");
-            this.lv.Items.Add(listViewItem3);
-            this.lv.Items.Add(listViewItem4);
+            listViewItem7.Text = "AAAAA2134";
+            listViewItem7.SubItems.Add("sdfsdf");
+            listViewItem7.SubItems.Add("sdfsdsd");
+            listViewItem8.Text = "BBBBB";
+            listViewItem8.SubItems.Add("111");
+            listViewItem8.SubItems.Add("222");
+            this.lv.Items.Add(listViewItem7);
+            this.lv.Items.Add(listViewItem8);
             this.lv.Location = new System.Drawing.Point(10, 179);
             this.lv.Name = "lv";
             this.lv.Size = new System.Drawing.Size(220, 100);
@@ -153,17 +155,6 @@
             this.sn.Text = "条码";
             this.sn.Width = 60;
             // 
-            // lblFolder
-            // 
-            this.lblFolder.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Regular);
-            this.lblFolder.ForeColor = System.Drawing.Color.Black;
-            this.lblFolder.Location = new System.Drawing.Point(10, 155);
-            this.lblFolder.Name = "lblFolder";
-            this.lblFolder.Size = new System.Drawing.Size(220, 20);
-            this.lblFolder.TabIndex = 15;
-            this.lblFolder.Text = "linkLabel1";
-            this.lblFolder.Click += new System.EventHandler(this.lblFolder_Click);
-            // 
             // txtDebug
             // 
             this.txtDebug.Location = new System.Drawing.Point(20, 69);
@@ -175,10 +166,27 @@
             // 
             // lblStatus
             // 
-            this.lblStatus.Location = new System.Drawing.Point(199, 156);
+            this.lblStatus.Location = new System.Drawing.Point(204, 282);
             this.lblStatus.Name = "lblStatus";
-            this.lblStatus.Size = new System.Drawing.Size(31, 20);
+            this.lblStatus.Size = new System.Drawing.Size(31, 13);
             this.lblStatus.Text = "NC!!";
+            // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.lblFolder);
+            this.panel2.Location = new System.Drawing.Point(10, 156);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(219, 19);
+            // 
+            // lblFolder
+            // 
+            this.lblFolder.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Regular);
+            this.lblFolder.ForeColor = System.Drawing.Color.Black;
+            this.lblFolder.Location = new System.Drawing.Point(-1, -1);
+            this.lblFolder.Name = "lblFolder";
+            this.lblFolder.Size = new System.Drawing.Size(493, 20);
+            this.lblFolder.TabIndex = 16;
+            this.lblFolder.Text = "linkLabel1";
             // 
             // Form2
             // 
@@ -188,17 +196,18 @@
             this.ClientSize = new System.Drawing.Size(238, 295);
             this.Controls.Add(this.lblStatus);
             this.Controls.Add(this.txtDebug);
-            this.Controls.Add(this.lblFolder);
             this.Controls.Add(this.lv);
             this.Controls.Add(this.lblDuplicate);
             this.Controls.Add(this.listBox1);
             this.Controls.Add(this.panel1);
+            this.Controls.Add(this.panel2);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "Form2";
             this.Text = "Form2";
             this.Load += new System.EventHandler(this.Form2_Load);
             this.panel1.ResumeLayout(false);
+            this.panel2.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -216,10 +225,11 @@
         private System.Windows.Forms.ColumnHeader color;
         private System.Windows.Forms.ColumnHeader num;
         private System.Windows.Forms.ColumnHeader sn;
-        private System.Windows.Forms.LinkLabel lblFolder;
         private System.Windows.Forms.TextBox txtDebug;
         private System.Windows.Forms.Label lblStatus;
         private Neolix.Device.ScanTextBox textBox1;
+        private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.LinkLabel lblFolder;
 
     }
 }

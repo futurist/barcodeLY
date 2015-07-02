@@ -176,8 +176,9 @@ namespace barcode
                 {
                     Data.prevSN = "";
                     Data.prevSN2 = "";
-                    string result = Data.dataListSN2.ContainsKey(firstSN) ? Data.dataListSN2[firstSN] : "";
-                    updateLV2(firstSN, result, true);
+                    if( Data.dataListSN2.ContainsKey(firstSN) ){
+                        updateLV2(firstSN, Data.dataListSN2[firstSN], true);
+                    }
                 }
 
                 return;
@@ -200,7 +201,28 @@ namespace barcode
 
         }
 
+        public int getIdFromListbox(string sn)
+        {
+            for (int i = 0; i < listBox1.Items.Count; i++) {
+                if (((codeClass)listBox1.Items[i]).Id == sn) {
+                    return i;
+                }
+            }
+            return -1;
+        }
 
+        public void setListboxItem(string sn, codeClass item) {
+            for (int i = 0; i < listBox1.Items.Count; i++)
+            {
+                codeClass code = ((codeClass)listBox1.Items[i]);
+                if (code.Id == sn)
+                {
+                    listBox1.Items[i] = item;
+                    return;
+                }
+            }
+            return ;
+        }
 
         // 声明一个委托 
         private delegate void NewDel();
@@ -396,7 +418,7 @@ mmInDtl.iPackageOrder as iPackageOrder
 
                     col.Width = -1;
                 }
-                updateLisBox();
+                updateLisBox(sn);
                 lblFolder.Text = folder.ToString();
             }
         }
@@ -481,7 +503,7 @@ mmInDtl.iPackageOrder as iPackageOrder
 
                 return;
             }
-            var val = (codeClass)listBox1.SelectedValue;
+            var code = (codeClass)listBox1.SelectedItem;
             var isDirty = false;
 
             debug( e.KeyValue.ToString() + " " + e.KeyCode.ToString());
@@ -492,8 +514,11 @@ mmInDtl.iPackageOrder as iPackageOrder
 
                 case "Delete":
                 case "Back":
-                    Data.codeList.RemoveAt(idx);
-                    isDirty = true;
+                    Data.codeList.Remove(code);
+                    listBox1.Items.RemoveAt(idx);
+                    if (listBox1.Items.Count>0) listBox1.SelectedIndex = Math.Min(idx, listBox1.Items.Count - 1);
+
+                    //isDirty = true;
                     e.Handled = true;
                     break;
                 case "Space":
@@ -538,14 +563,17 @@ mmInDtl.iPackageOrder as iPackageOrder
 
             if (isDirty)
             {
-                updateLisBox();
+                //updateLisBox();
 
                 if (listBox1.SelectedIndex == -1) return;
                 string sn = getCodeFromListbox( listBox1.SelectedIndex ).Id;
                 Data.prevSN = "";
                 Data.prevSN2 = "";
-                string result = Data.dataListSN2.ContainsKey(sn) ? Data.dataListSN2[sn] : "";
-                updateLV2(sn, result, true);
+                
+                if (Data.dataListSN2.ContainsKey(sn))
+                {
+                    updateLV2(sn, Data.dataListSN2[sn], true);
+                }
 
                 listBox1.Focus();
 
@@ -584,9 +612,9 @@ mmInDtl.iPackageOrder as iPackageOrder
             if (code.Id.Length < 8) return;
 
             Data.codeList.Insert(0,code);
-            lv.Items.Clear();
+            listBox1.Items.Insert(0, code);
 
-            updateLisBox();
+            lv.Items.Clear();
 
             if (moveToTop) listBox1.SelectedIndex = 0;
 
@@ -617,7 +645,7 @@ mmInDtl.iPackageOrder as iPackageOrder
 
         }
 
-        public void updateLisBox()
+        public void updateLisBox_datasource()
         {
             var prevIndex = listBox1.SelectedIndex;
             var prevFocus = listBox1.Focused;
@@ -634,6 +662,52 @@ mmInDtl.iPackageOrder as iPackageOrder
                 
             }
             if (prevFocus) listBox1.Focus();
+        }
+
+        public void updateLisBox()
+        {
+            var prevIndex = listBox1.SelectedIndex;
+            var prevFocus = listBox1.Focused;
+
+            List<codeClass> codelist = Data.getCodesFromFolder(folder.Id);
+
+            listBox1.Enabled = false;
+            listBox1.Items.Clear();
+            for (int i = 0; i < codelist.Count; i++)
+            {
+                listBox1.Items.Add(codelist[i]);
+            }
+            listBox1.Enabled = true;
+           
+            try
+            {
+                listBox1.SelectedIndex = prevIndex >= 0 && prevIndex < Data.codeList.Count ? prevIndex : 0;
+            }
+            catch (Exception e)
+            {
+
+            }
+            if (prevFocus) listBox1.Focus();
+        }
+
+
+
+
+        public void updateLisBox(string sn)
+        {
+            //var prevIndex = listBox1.SelectedIndex;
+            //var prevFocus = listBox1.Focused;
+
+            var id = getIdFromListbox(sn);
+            if (id < 0) return;
+
+            var item = Data.getCodeFromList(sn);
+
+            listBox1.Items[id] = item;
+
+            //listBox1.Update();
+
+            //if (prevFocus) listBox1.Focus();
         }
 
         public bool checkDuplicate(string ID)
