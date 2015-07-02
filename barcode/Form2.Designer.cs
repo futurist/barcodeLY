@@ -29,8 +29,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.ListViewItem listViewItem7 = new System.Windows.Forms.ListViewItem();
-            System.Windows.Forms.ListViewItem listViewItem8 = new System.Windows.Forms.ListViewItem();
+            System.Windows.Forms.ListViewItem listViewItem11 = new System.Windows.Forms.ListViewItem();
+            System.Windows.Forms.ListViewItem listViewItem12 = new System.Windows.Forms.ListViewItem();
             this.mainMenu1 = new System.Windows.Forms.MainMenu();
             this.panel1 = new System.Windows.Forms.Panel();
             this.textBox1 = new Neolix.Device.ScanTextBox();
@@ -104,6 +104,7 @@
             this.listBox1.Name = "listBox1";
             this.listBox1.Size = new System.Drawing.Size(220, 114);
             this.listBox1.TabIndex = 7;
+            this.listBox1.LostFocus += new System.EventHandler(this.listBox1_LostFocus);
             this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
             this.listBox1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.listBox1_KeyDown);
             // 
@@ -115,14 +116,14 @@
             this.lv.Columns.Add(this.num);
             this.lv.Columns.Add(this.sn);
             this.lv.FullRowSelect = true;
-            listViewItem7.Text = "AAAAA2134";
-            listViewItem7.SubItems.Add("sdfsdf");
-            listViewItem7.SubItems.Add("sdfsdsd");
-            listViewItem8.Text = "BBBBB";
-            listViewItem8.SubItems.Add("111");
-            listViewItem8.SubItems.Add("222");
-            this.lv.Items.Add(listViewItem7);
-            this.lv.Items.Add(listViewItem8);
+            listViewItem11.Text = "AAAAA2134";
+            listViewItem11.SubItems.Add("sdfsdf");
+            listViewItem11.SubItems.Add("sdfsdsd");
+            listViewItem12.Text = "BBBBB";
+            listViewItem12.SubItems.Add("111");
+            listViewItem12.SubItems.Add("222");
+            this.lv.Items.Add(listViewItem11);
+            this.lv.Items.Add(listViewItem12);
             this.lv.Location = new System.Drawing.Point(10, 179);
             this.lv.Name = "lv";
             this.lv.Size = new System.Drawing.Size(220, 100);
@@ -166,7 +167,7 @@
             // 
             // lblStatus
             // 
-            this.lblStatus.Location = new System.Drawing.Point(204, 282);
+            this.lblStatus.Location = new System.Drawing.Point(3, 175);
             this.lblStatus.Name = "lblStatus";
             this.lblStatus.Size = new System.Drawing.Size(31, 13);
             this.lblStatus.Text = "NC!!";
@@ -194,13 +195,13 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoScroll = true;
             this.ClientSize = new System.Drawing.Size(238, 295);
-            this.Controls.Add(this.lblStatus);
             this.Controls.Add(this.txtDebug);
             this.Controls.Add(this.lv);
             this.Controls.Add(this.lblDuplicate);
             this.Controls.Add(this.listBox1);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.panel2);
+            this.Controls.Add(this.lblStatus);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "Form2";

@@ -25,6 +25,8 @@ namespace barcode
         public System.Windows.Forms.Timer inter1 = new System.Windows.Forms.Timer();
         public System.Windows.Forms.Timer inter2 = new System.Windows.Forms.Timer();
 
+        public string filter = "";
+
         public Scaner scanner = new Scaner();
 
         public int count = 0;
@@ -472,6 +474,7 @@ mmInDtl.iPackageOrder as iPackageOrder
 
         public delegate void MethodInvoker();
 
+        
 
         private void listBox1_KeyDown(object sender, KeyEventArgs e)
         {
@@ -490,6 +493,10 @@ mmInDtl.iPackageOrder as iPackageOrder
                     break;
                 case "Escape":
                     hideMe();
+                    break;
+                case "F8":
+                    if (filter == "") updateLisBox(false);
+                    else updateLisBox();
                     break;
             }
 
@@ -668,6 +675,7 @@ mmInDtl.iPackageOrder as iPackageOrder
         {
             var prevIndex = listBox1.SelectedIndex;
             var prevFocus = listBox1.Focused;
+            filter = "";
 
             List<codeClass> codelist = Data.getCodesFromFolder(folder.Id);
 
@@ -681,7 +689,35 @@ mmInDtl.iPackageOrder as iPackageOrder
            
             try
             {
-                listBox1.SelectedIndex = prevIndex >= 0 && prevIndex < Data.codeList.Count ? prevIndex : 0;
+                listBox1.SelectedIndex = prevIndex >= 0 && prevIndex < listBox1.Items.Count ? prevIndex : 0;
+            }
+            catch (Exception e)
+            {
+
+            }
+            if (prevFocus) listBox1.Focus();
+        }
+
+        public void updateLisBox(bool isRight)
+        {
+            var prevIndex = listBox1.SelectedIndex;
+            var prevFocus = listBox1.Focused;
+
+            List<codeClass> codelist = Data.getCodesFromFolder(folder.Id);
+
+            listBox1.Enabled = false;
+            listBox1.Items.Clear();
+            for (int i = 0; i < codelist.Count; i++)
+            {
+                string sn = codelist[i].Id;
+                if(isRight? Data.dataListSN2[sn]!="" : Data.dataListSN2[sn]=="")
+                    listBox1.Items.Add(codelist[i]);
+            }
+            listBox1.Enabled = true;
+            filter = isRight ? "RightItem" : "WrongItem";
+            try
+            {
+                listBox1.SelectedIndex = prevIndex >= 0 && prevIndex < listBox1.Items.Count ? prevIndex : 0;
             }
             catch (Exception e)
             {
@@ -928,6 +964,13 @@ mmInDtl.iPackageOrder as iPackageOrder
         private void textBox1_ScanerDataReceivedEvent()
         {
             MessageBox.Show("SS");
+        }
+
+        private void listBox1_LostFocus(object sender, EventArgs e)
+        {
+            if (filter != "") {
+                updateLisBox();
+            }
         }
 
 
