@@ -47,24 +47,6 @@
   <ItemGroup>
     <Reference Include="Microsoft.Windowsce.Forms" />
     <Reference Include="mscorlib" />
-    <Reference Include="Neolix.Device.HHT, Version=1.0.5658.32188, Culture=neutral, processorArchitecture=MSIL" />
-    <Reference Include="Neolix.WinCE.Common, Version=1.1.0.3, Culture=neutral, processorArchitecture=MSIL" />
-    <Reference Include="OpenNETCF, Version=2.3.12317.0, Culture=neutral, PublicKeyToken=e60dbea84bb431b7, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\OpenNetCF\OpenNETCF.Windows.Forms\OpenNETCF.Windows.Forms2\bin\Debug\OpenNETCF.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenNETCF.Drawing, Version=2.3.12317.0, Culture=neutral, PublicKeyToken=e60dbea84bb431b7, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\OpenNetCF\OpenNETCF.Windows.Forms\OpenNETCF.Windows.Forms2\bin\Debug\OpenNETCF.Drawing.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenNETCF.Windows.Forms.v35, Version=3.5.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\OpenNetCF\OpenNETCF.Windows.Forms\OpenNETCF.Windows.Forms.v35\bin\Debug\v35\OpenNETCF.Windows.Forms.v35.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenNETCF.Windows.Forms2, Version=2.3.12317.0, Culture=neutral, PublicKeyToken=e60dbea84bb431b7, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\OpenNetCF\OpenNETCF.Windows.Forms\OpenNETCF.Windows.Forms2\bin\Debug\OpenNETCF.Windows.Forms2.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.SqlClient, Version=3.0.3600.0, Culture=neutral, PublicKeyToken=3be235df1c8d2ad3, processorArchitecture=MSIL">
@@ -107,6 +89,12 @@
     <Compile Include="frmMain.Designer.cs">
       <DependentUpon>frmMain.cs</DependentUpon>
     </Compile>
+    <Compile Include="frmPackage.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmPackage.Designer.cs">
+      <DependentUpon>frmPackage.cs</DependentUpon>
+    </Compile>
     <Compile Include="MemoryMap.cs" />
     <Compile Include="Process.cs" />
     <Compile Include="Program.cs" />
@@ -122,6 +110,10 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmMain.resx">
       <DependentUpon>frmMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmPackage.resx">
+      <DependentUpon>frmPackage.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

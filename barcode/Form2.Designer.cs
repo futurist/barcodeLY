@@ -33,7 +33,7 @@
             System.Windows.Forms.ListViewItem listViewItem14 = new System.Windows.Forms.ListViewItem();
             this.mainMenu1 = new System.Windows.Forms.MainMenu();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.textBox1 = new Neolix.Device.ScanTextBox();
+            this.textBox1 = new System.Windows.Forms.TextBox();
             this.btnAdd = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.lblDuplicate = new System.Windows.Forms.LinkLabel();
@@ -230,7 +230,7 @@
         private System.Windows.Forms.ColumnHeader num;
         private System.Windows.Forms.ColumnHeader sn;
         private System.Windows.Forms.TextBox txtDebug;
-        private Neolix.Device.ScanTextBox textBox1;
+        private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.LinkLabel lblFolder;
         private System.Windows.Forms.LinkLabel lblStatus;

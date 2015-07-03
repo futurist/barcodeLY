@@ -6,7 +6,6 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
-using Neolix.Device;
 using System.Runtime.InteropServices;
 using System.Data.SqlTypes;
 using System.Data.SqlClient;
@@ -95,7 +94,6 @@ namespace barcode
         
 
         public void exitApp(object obj, EventArgs e) {
-            
             Data.exitApp();
         }
 

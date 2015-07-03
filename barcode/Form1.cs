@@ -6,7 +6,6 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
-using Neolix.Device;
 using System.Runtime.InteropServices;
 
 namespace barcode
@@ -16,7 +15,6 @@ namespace barcode
     {
 
         public Timer inter1 = new Timer();
-        public Scaner scanner = new Scaner();
 
 
         public Form1()
