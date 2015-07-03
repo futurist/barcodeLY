@@ -103,7 +103,13 @@ namespace barcode
 
             if (!File.Exists(filepath)) return "";
 
-            File.Delete(newfilepath);
+            //make a backup of newfile if exists
+            if (File.Exists(newfilepath))
+            {
+                //File.Delete(newfilepath);
+                string dtname = string.Format("{0}-{1:yyyy-MM-dd_HH-mm-ss}.txt", newfilepath.Replace(".txt", ""), DateTime.Now);
+                File.Move(newfilepath, dtname);
+            }
 
             try
             {
@@ -124,7 +130,13 @@ namespace barcode
 
             if (!File.Exists(filepath)) return "";
 
-            File.Delete(filepath);
+            //make a backup of newfile if exists
+            if (File.Exists(filepath))
+            {
+                //File.Delete(filepath);
+                string dtname = string.Format("{0}-{1:yyyy-MM-dd_HH-mm-ss}.txt", filepath.Replace(".txt",""), DateTime.Now);
+                File.Move(filepath, dtname);
+            }
 
             return "";
         }

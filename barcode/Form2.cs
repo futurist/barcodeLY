@@ -124,6 +124,8 @@ namespace barcode
 
             if (data=="OK" ) {
 
+                showMsg("O");
+
                 string SNs = string.Join("{@sn@}", Data.getEmptyCodesFromFolder(folder.Id).ToArray() );
 
                 if (SNs == "") return;
@@ -132,7 +134,7 @@ namespace barcode
 
                 if (Data.putBuffer != "" && Data.prevPutBuffer != Data.putBuffer)
                 {
-
+                    showMsg("<");
                     WinCE.createMemFile("<<<<" + Data.putBuffer);
                     Data.prevPutBuffer = Data.putBuffer;
                     debug("Send:" + Data.putBuffer);
@@ -143,6 +145,7 @@ namespace barcode
 
             if (data.StartsWith(">>>>"))
             {
+                showMsg(">");
                 WinCE.createMemFile("OK");
                 sql = data.Substring(4);
                 debug("Get:"+sql);
@@ -173,7 +176,9 @@ namespace barcode
                         updateLV2(sn, result, false);
                     }
                 }
-                
+
+                return;
+
                 if (firstSN!="")
                 {
                     Data.prevSN = "";
@@ -351,14 +356,14 @@ mmInDtl.iPackageOrder as iPackageOrder
         }
 
 
-        public void updateLV2(string sn, string sql, bool updateUI)
+        public void updateLV2(string sn, string sql, bool updateLV)
         {
 
             if ( Data.prevSN2==sn ) return;
 
             Data.prevSN2 = sn;
 
-            if (updateUI) lv.Items.Clear();
+            if (updateLV) lv.Items.Clear();
 
             var thePack = Data.getCodeFromList(sn);
 
@@ -393,7 +398,7 @@ mmInDtl.iPackageOrder as iPackageOrder
 
                     thePack.addRow(row);
 
-                    if (updateUI)
+                    if (updateLV)
                     {
                         ListViewItem item = new ListViewItem(row[0].ToString());
 
@@ -413,15 +418,16 @@ mmInDtl.iPackageOrder as iPackageOrder
 
             }
 
-            if (updateUI)
+            updateLisBox(sn);
+            lblFolder.Text = folder.ToString();
+
+            if (updateLV)
             {
                 foreach (ColumnHeader col in lv.Columns)
                 {
 
                     col.Width = -1;
                 }
-                updateLisBox(sn);
-                lblFolder.Text = folder.ToString();
             }
         }
 
@@ -971,6 +977,13 @@ mmInDtl.iPackageOrder as iPackageOrder
             if (filter != "") {
                 updateLisBox();
             }
+        }
+
+        private void lblStatus_Click(object sender, EventArgs e)
+        {
+            Data.prevPutBuffer = "";
+            Data.prevSN = "";
+            Data.prevSN2 = "";
         }
 
 

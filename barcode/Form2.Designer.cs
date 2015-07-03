@@ -29,8 +29,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.ListViewItem listViewItem11 = new System.Windows.Forms.ListViewItem();
-            System.Windows.Forms.ListViewItem listViewItem12 = new System.Windows.Forms.ListViewItem();
+            System.Windows.Forms.ListViewItem listViewItem13 = new System.Windows.Forms.ListViewItem();
+            System.Windows.Forms.ListViewItem listViewItem14 = new System.Windows.Forms.ListViewItem();
             this.mainMenu1 = new System.Windows.Forms.MainMenu();
             this.panel1 = new System.Windows.Forms.Panel();
             this.textBox1 = new Neolix.Device.ScanTextBox();
@@ -45,9 +45,9 @@
             this.num = new System.Windows.Forms.ColumnHeader();
             this.sn = new System.Windows.Forms.ColumnHeader();
             this.txtDebug = new System.Windows.Forms.TextBox();
-            this.lblStatus = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
             this.lblFolder = new System.Windows.Forms.LinkLabel();
+            this.lblStatus = new System.Windows.Forms.LinkLabel();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.SuspendLayout();
@@ -59,13 +59,13 @@
             this.panel1.Controls.Add(this.label2);
             this.panel1.Location = new System.Drawing.Point(10, 7);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(220, 33);
+            this.panel1.Size = new System.Drawing.Size(211, 33);
             // 
             // textBox1
             // 
             this.textBox1.Location = new System.Drawing.Point(33, 5);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(184, 23);
+            this.textBox1.Size = new System.Drawing.Size(170, 23);
             this.textBox1.TabIndex = 0;
             this.textBox1.GotFocus += new System.EventHandler(this.textBox1_GotFocus);
             this.textBox1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox1_KeyDown);
@@ -116,14 +116,14 @@
             this.lv.Columns.Add(this.num);
             this.lv.Columns.Add(this.sn);
             this.lv.FullRowSelect = true;
-            listViewItem11.Text = "AAAAA2134";
-            listViewItem11.SubItems.Add("sdfsdf");
-            listViewItem11.SubItems.Add("sdfsdsd");
-            listViewItem12.Text = "BBBBB";
-            listViewItem12.SubItems.Add("111");
-            listViewItem12.SubItems.Add("222");
-            this.lv.Items.Add(listViewItem11);
-            this.lv.Items.Add(listViewItem12);
+            listViewItem13.Text = "AAAAA2134";
+            listViewItem13.SubItems.Add("sdfsdf");
+            listViewItem13.SubItems.Add("sdfsdsd");
+            listViewItem14.Text = "BBBBB";
+            listViewItem14.SubItems.Add("111");
+            listViewItem14.SubItems.Add("222");
+            this.lv.Items.Add(listViewItem13);
+            this.lv.Items.Add(listViewItem14);
             this.lv.Location = new System.Drawing.Point(10, 179);
             this.lv.Name = "lv";
             this.lv.Size = new System.Drawing.Size(220, 100);
@@ -165,13 +165,6 @@
             this.txtDebug.Size = new System.Drawing.Size(199, 56);
             this.txtDebug.TabIndex = 0;
             // 
-            // lblStatus
-            // 
-            this.lblStatus.Location = new System.Drawing.Point(3, 175);
-            this.lblStatus.Name = "lblStatus";
-            this.lblStatus.Size = new System.Drawing.Size(31, 13);
-            this.lblStatus.Text = "NC!!";
-            // 
             // panel2
             // 
             this.panel2.Controls.Add(this.lblFolder);
@@ -189,19 +182,30 @@
             this.lblFolder.TabIndex = 16;
             this.lblFolder.Text = "linkLabel1";
             // 
+            // lblStatus
+            // 
+            this.lblStatus.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Regular);
+            this.lblStatus.ForeColor = System.Drawing.Color.Black;
+            this.lblStatus.Location = new System.Drawing.Point(214, 15);
+            this.lblStatus.Name = "lblStatus";
+            this.lblStatus.Size = new System.Drawing.Size(18, 18);
+            this.lblStatus.TabIndex = 15;
+            this.lblStatus.Text = "<";
+            this.lblStatus.Click += new System.EventHandler(this.lblStatus_Click);
+            // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoScroll = true;
             this.ClientSize = new System.Drawing.Size(238, 295);
+            this.Controls.Add(this.lblStatus);
             this.Controls.Add(this.txtDebug);
             this.Controls.Add(this.lv);
             this.Controls.Add(this.lblDuplicate);
             this.Controls.Add(this.listBox1);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.panel2);
-            this.Controls.Add(this.lblStatus);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "Form2";
@@ -227,10 +231,10 @@
         private System.Windows.Forms.ColumnHeader num;
         private System.Windows.Forms.ColumnHeader sn;
         private System.Windows.Forms.TextBox txtDebug;
-        private System.Windows.Forms.Label lblStatus;
         private Neolix.Device.ScanTextBox textBox1;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.LinkLabel lblFolder;
+        private System.Windows.Forms.LinkLabel lblStatus;
 
     }
 }
