@@ -13,12 +13,22 @@ using System.Data.SqlClient;
 using System.Threading;
 using System.Text.RegularExpressions;
 using System.Runtime.Serialization;
-
+using barcode;
 
 namespace barcode
 {
-    public partial class Form2 : Form
+    public partial class Form2 : BaseForm
     {
+
+        public enum Beep : uint
+        {
+            SND_FILENAME = 0x00020000,
+            SND_ASYNC = 0x00000001
+        }
+
+        [DllImport("coredll.dll", EntryPoint = "PlaySound")]
+        public static extern int PlaySound(System.String pszSound, IntPtr hmod, uint fdwSound);
+
 
         public Form1 form1;
         public folderClass folder = Data.folderList[Data.folderIndex];
@@ -27,7 +37,6 @@ namespace barcode
 
         public string filter = "";
 
-        public Scaner scanner = new Scaner();
 
         public int count = 0;
         public string prevDebugStr = "";
@@ -61,28 +70,24 @@ namespace barcode
 
             txtDebug.Visible = false;
             lv.Items.Clear();
-
-            this.Activated += new EventHandler(Form2_Activated);
-
-            //scanner.Open();
-            //scanner.ScanerDataReceived += new Scaner.ScanerDataReceivedHandler(scanner_ScanerDataReceived);
+            
+            
 
         }
 
 
 
-        void scanner_ScanerDataReceived(object sender, string code)
-        {
-            MessageBox.Show(code);
-        }
 
-        void Form2_Activated(object sender, EventArgs e)
+        public void Form2_OnShow()
         {
+            BaseForm.ScannerAutoInit();
             Data.curForm = this;
             updateLisBox();
         }
 
-        public void stopClock() {
+        public void Form2_OnHide()
+        {
+            BaseForm.ScannerAutoExit();
             inter1.Enabled = false;
             inter2.Enabled = false;
         }
@@ -90,6 +95,7 @@ namespace barcode
         
 
         public void exitApp(object obj, EventArgs e) {
+            
             Data.exitApp();
         }
 
@@ -100,7 +106,18 @@ namespace barcode
             txtDebug.Text = str + "\r\n" + txtDebug.Text;
         }
 
-        
+        //we get barcode here
+        public override void OnBarCodeNotify(byte[] BarCodeData, int nLength)
+        {
+            this.textBox1.Focus();
+            this.textBox1.Text = Encoding.Default.GetString(BarCodeData, 0, nLength);
+            btnAdd_Click();
+
+            //PlaySound("beep.wav", IntPtr.Zero, (Int32)Beep.SND_FILENAME | (Int32)Beep.SND_ASYNC);
+            
+            //StandardKeyboradOut(BarCodeData, nLength, _SCAN_DATA_SUFFIX.ENTER_SUFFIX);
+        }
+
 
         public void checkData()
         {
@@ -126,7 +143,7 @@ namespace barcode
 
                 showMsg("O");
 
-                string SNs = string.Join("{@sn@}", Data.getEmptyCodesFromFolder(folder.Id).ToArray() );
+                string SNs = string.Join("{@sn@}", Data.getEmptyCodesFromFolder(folder.Id, 200).ToArray() );
 
                 if (SNs == "") return;
 
@@ -372,6 +389,7 @@ mmInDtl.iPackageOrder as iPackageOrder
             if (sql == "")
             {
                 thePack.OrderNo = "????";
+                PlaySound("Scan.wav", IntPtr.Zero, (Int32)Beep.SND_FILENAME | (Int32)Beep.SND_ASYNC);
 
             }
             else if (sql.StartsWith("{@error@}"))
@@ -467,16 +485,6 @@ mmInDtl.iPackageOrder as iPackageOrder
 
         }
 
-        private void ScanerDataReceived(object sender, string code)
-        {
-            MethodInvoker mi = delegate
-            {
-
-                this.textBox1.Text = code;
-                this.textBox1.Focus();
-            };
-            Invoke(mi);
-        }
 
         public delegate void MethodInvoker();
 
@@ -624,6 +632,8 @@ mmInDtl.iPackageOrder as iPackageOrder
 
             if (code.Id.Length < 8) return;
 
+            PlaySound("beep.wav", IntPtr.Zero, (Int32)Beep.SND_FILENAME | (Int32)Beep.SND_ASYNC);
+
             Data.codeList.Insert(0,code);
             listBox1.Items.Insert(0, code);
 
@@ -633,16 +643,20 @@ mmInDtl.iPackageOrder as iPackageOrder
 
         }
 
-        private void btnAdd_Click(object sender, EventArgs e)
-        {
+        public void btnAdd_Click() {
             var idx = listBox1.SelectedIndex;
             if (idx == -1) idx = Data.codeList.Count - 1;
-            addLisBox(new codeClass( textBox1.Text, folder.Id ), true);
-            
+            addLisBox(new codeClass(textBox1.Text, folder.Id), true);
+
             //textBox1.Focus();
             textBox1.Text = "";
             textBox1.Focus();
-            
+        }
+
+        private void btnAdd_Click(object sender, EventArgs e)
+        {
+
+            btnAdd_Click();
         }
 
 
@@ -650,6 +664,8 @@ mmInDtl.iPackageOrder as iPackageOrder
         {
             lblDuplicate.Show();
             lblDuplicate.Text = code.Id + "\r\n" + "已存在";
+
+            PlaySound("infbeg.wav", IntPtr.Zero, (Int32)Beep.SND_FILENAME | (Int32)Beep.SND_ASYNC);
 
             inter1.Enabled = false;
             inter1.Interval = 1000; // 1 second
@@ -942,7 +958,8 @@ mmInDtl.iPackageOrder as iPackageOrder
         }
 
         void hideMe() {
-            inter2.Enabled = false;
+            
+            Form2_OnHide();
 
             this.Hide();
             Data.curForm = form1;
@@ -967,10 +984,6 @@ mmInDtl.iPackageOrder as iPackageOrder
             lblStatus.Text = str;
         }
 
-        private void textBox1_ScanerDataReceivedEvent()
-        {
-            MessageBox.Show("SS");
-        }
 
         private void listBox1_LostFocus(object sender, EventArgs e)
         {
@@ -984,6 +997,8 @@ mmInDtl.iPackageOrder as iPackageOrder
             Data.prevPutBuffer = "";
             Data.prevSN = "";
             Data.prevSN2 = "";
+            MessageBox.Show("InitMem");
+            WinCE.createMemFile("OK");
         }
 
 

@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{F4E62785-2E12-4BBD-B581-1422A545295C}</ProjectGuid>
     <OutputType>WinExe</OutputType>
@@ -45,6 +45,7 @@
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Windowsce.Forms" />
     <Reference Include="mscorlib" />
     <Reference Include="Neolix.Device.HHT, Version=1.0.5658.32188, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="Neolix.WinCE.Common, Version=1.1.0.3, Culture=neutral, processorArchitecture=MSIL" />
@@ -77,6 +78,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BaseForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Coredll.cs" />
     <Compile Include="Data.cs" />
     <Compile Include="Form1.cs">

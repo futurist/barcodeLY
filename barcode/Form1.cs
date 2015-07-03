@@ -441,7 +441,12 @@ namespace barcode
 
         }
 
-        public void stopClock() {
+        public void Form1_OnShow()
+        {
+            
+        }
+        public void Form1_OnHide()
+        {
             inter1.Enabled = false;
         }
 
@@ -472,8 +477,9 @@ namespace barcode
             }
             Form2 form2 = Data.formList[folderID];
             Data.curForm = form2;
-            form2.updateLisBox();
+            
             form2.Show();
+            form2.Form2_OnShow();
         }
 
 

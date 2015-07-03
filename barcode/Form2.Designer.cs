@@ -69,7 +69,6 @@
             this.textBox1.TabIndex = 0;
             this.textBox1.GotFocus += new System.EventHandler(this.textBox1_GotFocus);
             this.textBox1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox1_KeyDown);
-            this.textBox1.ScanerDataReceivedEvent += new Neolix.Device.ScanTextBox.ScanerDataReceived(this.textBox1_ScanerDataReceivedEvent);
             // 
             // btnAdd
             // 

@@ -200,7 +200,7 @@ namespace barcode
             return CL;
         }
 
-        public static List<string> getEmptyCodesFromFolder(string folder)
+        public static List<string> getEmptyCodesFromFolder(string folder, int limit)
         {
             var CL = new List<string> { };
             foreach (var c in codeList)
@@ -208,6 +208,7 @@ namespace barcode
                 if (c.Folder == folder && c.OrderNo == "")
                 {
                     CL.Add(c.Id);
+                    if (CL.Count >= limit) break;
                 }
             }
             return CL;
@@ -246,12 +247,13 @@ namespace barcode
         {
             if (curForm.Name == "Form1")
             {
-                ((Form1)curForm).stopClock();
+                ((Form1)curForm).Form1_OnHide();
             }
             if (curForm.Name == "Form2")
             {
-                ((Form2)curForm).stopClock();
+                ((Form2)curForm).Form2_OnHide();
             }
+
 
             WinCE.createMemFile("EXIT");
             if (commExited) WinCE.closeMemFile();
