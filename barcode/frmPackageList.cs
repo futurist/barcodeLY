@@ -13,14 +13,22 @@ using System.Text.RegularExpressions;
 using System.Runtime.Serialization;
 using barcode;
 
+
 namespace barcode
 {
-    public partial class frmPackage : BaseForm
+    public partial class frmPackageList : BaseForm
     {
-		//declare @id as nchar(40)
-//set @id = (select N'P'+ CONVERT (varchar(20), (cast ( max( RIGHT( sPackageNo, 10 ) ) as int )+1) ) as maxPkgID from mmInDtl  where  LEN(sPackageNo)=11 )
-//update TestDB.dbo.testdata set id=@id where num=10
+        [DllImport("coredll.dll", SetLastError = true)]
+        extern static int SipShowIM(int dwFlag);
+        const int SIPF_ON = 1;
+        const int SIPF_OFF = 0;
+        public void ShowSIP(Boolean ShowIt)
+        {
 
+            SipShowIM(ShowIt ? SIPF_ON : SIPF_OFF);
+        }
+
+        public bool IsClosed = false;
 
         public enum Beep : uint
         {
@@ -32,8 +40,6 @@ namespace barcode
         public static extern int PlaySound(System.String pszSound, IntPtr hmod, uint fdwSound);
 
 
-        public Form1 form1;
-        public folderClass folder = null;
         public System.Windows.Forms.Timer inter1 = new System.Windows.Forms.Timer();
         public System.Windows.Forms.Timer inter2 = new System.Windows.Forms.Timer();
 
@@ -43,22 +49,29 @@ namespace barcode
         public int count = 0;
         public string prevDebugStr = "";
 
+        public frmPackage form = null;
 
-        public frmPackage()
+        public frmPackageList(frmPackage f)
         {
             InitializeComponent();
-            panelBar.Hide();
+
             this.TopMost = true;
             this.FormBorderStyle = FormBorderStyle.None;
             this.WindowState = FormWindowState.Maximized;
-            this.listBox1.DataSource = Data.codeList;
+            this.listBox1.DataSource = Data.pkgOrderList;
+
+            form = f;
 
             txtDebug.Visible = false;
-            panelBar.Location = new Point(5,14);
+           
             Form_OnShow();
 
-        }
+            listBox1.Focus();
 
+            textBox1.Text = Data.lastPkgCode;
+            btnAdd_Click();
+
+        }
 
 
         public void Form_OnShow()
@@ -77,8 +90,8 @@ namespace barcode
             {
                 debug(e.Message);
             }
-            Data.codeList.Clear();
-            Data.folderList.Clear();
+            Data.pkgOrderList.Clear();
+
         }
 
 
@@ -93,10 +106,16 @@ namespace barcode
         //we get barcode here
         public override void OnBarCodeNotify(byte[] BarCodeData, int nLength)
         {
-            if (!panelBar.Visible) return;
+            if (IsClosed)
+            {
+                form.OnBarCodeNotify(BarCodeData, nLength);
+                return;
+            }
             this.textBox1.Focus();
             this.textBox1.Text = Encoding.Default.GetString(BarCodeData, 0, nLength);
             btnAdd_Click();
+
+            
 
             //PlaySound("beep.wav", IntPtr.Zero, (Int32)Beep.SND_FILENAME | (Int32)Beep.SND_ASYNC);
 
@@ -106,15 +125,13 @@ namespace barcode
 
         public void btnAdd_Click()
         {
-            var idx = listBox1.SelectedIndex;
-            if (idx == -1) idx = Data.codeList.Count - 1;
-            addLisBox(new codeClass(textBox1.Text, folder.Id), true);
             
-            Data.lastPkgCode = textBox1.Text;
+            addLisBox(textBox1.Text, true);
 
             //textBox1.Focus();
-            textBox1.Text = "";
-            textBox1.Focus();
+            //txtPkg.Focus();
+
+            getPkgData(txtPkg.Text);
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
@@ -123,45 +140,20 @@ namespace barcode
             btnAdd_Click();
         }
 
-        public void addLisBox(codeClass code, bool moveToTop)
+        public void addLisBox(string code, bool moveToTop)
         {
 
-            if (code.Id.Length < 8) return;
+            if (code.Length < 8) return;
 
-            if (code.Id.StartsWith("P", StringComparison.CurrentCultureIgnoreCase))
-            {
-                showDuplicateMsg(code, code.Id + "\r\n" + "不可添加包号");
-                return;
-            }
-
-            if (checkDuplicate(code.Id) != false)
-            {
-                showDuplicateMsg(code, code.Id + "\r\n" + "已存在");
-                return;
-            }
-
-
-
+           
             PlaySound("beep.wav", IntPtr.Zero, (Int32)Beep.SND_FILENAME | (Int32)Beep.SND_ASYNC);
 
-            Data.codeList.Add( code );
-
-            updateLisBox_datasource();
-
-            if (moveToTop) listBox1.SelectedIndex = 0;
+            getProductData(code);
 
         }
 
-        public bool checkDuplicate(string ID)
-        {
-            foreach (var code in Data.codeList)
-            {
-                if (ID == code.Id) return true;
-            }
-            return false;
-        }
 
-        public void showDuplicateMsg(codeClass code, string str)
+        public void showDuplicateMsg(pkgOrderClass code, string str)
         {
             lblDuplicate.Show();
             lblDuplicate.Text = str;
@@ -182,12 +174,12 @@ namespace barcode
 
             listBox1.Enabled = false;
             listBox1.DataSource = null;
-            listBox1.DataSource = Data.getCodesFromFolder(folder.Id);
+            listBox1.DataSource = Data.pkgOrderList;
             listBox1.Enabled = true;
 
             try
             {
-                listBox1.SelectedIndex = prevIndex >= 0 && prevIndex < Data.codeList.Count ? prevIndex : 0;
+                listBox1.SelectedIndex = prevIndex >= 0 && prevIndex < Data.pkgOrderList.Count ? prevIndex : 0;
             }
             catch (Exception e)
             {
@@ -197,17 +189,7 @@ namespace barcode
         }
 
 
-        private void btnPkg_Click(object sender, EventArgs e)
-        {
-            folder = new folderClass( txtPkg.Text );
-            lblLastPkg.Text = folder.Id;
-            lblCurPkg.Text = folder.Id;
-            txtPkg.Text = "";
-
-            panelBar.Show();
-            
-        }
-
+        
         private void listBox1_KeyDown(object sender, KeyEventArgs e)
         {
             var idx = listBox1.SelectedIndex;
@@ -218,10 +200,7 @@ namespace barcode
 
                 case "Delete":
                 case "Back":
-                    Data.codeList.RemoveAt(idx);
                     
-                    updateLisBox_datasource();
-
                     //isDirty = true;
                     e.Handled = true;
                     break;
@@ -244,8 +223,11 @@ namespace barcode
 
         private void txtExit_Click(object sender, EventArgs e)
         {
+            IsClosed = true;
             Form_OnHide();
+            this.Hide();
             this.Close();
+            form.Form_OnShow();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -254,12 +236,10 @@ namespace barcode
         }
 
         public void returnToFolder() {
-            Data.codeList.Clear();
+            Data.pkgOrderList.Clear();
             updateLisBox_datasource();
-            panelBar.Hide();
 
             txtPkg.Text = "";
-            txtPkg.Focus();
         }
 
         private void txtPkg_KeyDown(object sender, KeyEventArgs e)
@@ -268,40 +248,15 @@ namespace barcode
             {
 
                 case "Return":
-                    btnPkg_Click(sender, e);
+                    getPkgData(txtPkg.Text);
                     break;
             }
         }
 
-        private void btnUpload_Click(object sender, EventArgs e)
-        {
-
-            uploadData();
-
-        }
-
-
-        public void uploadData()
+        public void getProductData(string code)
         {
             DataTable dt = null;
-
-            string lastID="", totalID="";
-            for (var i = 0; i < Data.codeList.Count; i++ )
-            {
-                lastID = Data.codeList[i].Id;
-                totalID += string.Format( "'{0}',", lastID );
-            }
-            totalID = totalID.Remove(totalID.Length - 1, 1);
-
-            string sql = string.Format(@"DECLARE @maxPkg VARCHAR(20),@sUpdateMan VARCHAR(20), @report uniqueidentifier;
-set @sUpdateMan=(select sUpdateMan from mmInDtl where sFabricNo='{0}');
-set @report=(select upbReportFormatDtlGUID from pbBillReportDefine left join mmInDtl on sBillNo=sOrderNo where sFabricNo='{0}');
-set @maxPkg=(select N'P'+ right(convert(varchar(20),GETDATE(),112), 6) + right('0000'+CONVERT (varchar(20), (cast ( isnull(max( RIGHT( sPackageNo, 4 ) ), 0) as int )+1) ),4) as maxPkgID from mmInDtl  where  LEN(sPackageNo)=11 and tUpdateTime>= CAST(CAST( GETDATE() AS DATE) AS DATETIME));
-
-update mmInDtl set sPackageNo=@maxPkg, iPackageOrder={2}, tUpdateTime=GETDATE() where sFabricNo in ({1});
-
-exec sppbRegisterBillReportTask  @maxPkg, 1003, @sUpdateMan,NULL, NULL, NULL, @report,1;
-", lastID, totalID, folder.Id);
+            string sql = string.Format(@"select top 1 sSampleMaterialNo from mmInDtl where sFabricNo='{0}' or sPackageNo='{0}'", code);
 
             try
             {
@@ -313,18 +268,72 @@ exec sppbRegisterBillReportTask  @maxPkg, 1003, @sUpdateMan,NULL, NULL, NULL, @r
                 MessageBox.Show(str);
                 return;
             }
-
-            returnToFolder();
-
+            if (object.ReferenceEquals(null, dt) || dt.Rows.Count < 1)
+            {
+                txtPkg.Text = "";
+                Data.pkgOrderList.Clear();
+                updateLisBox_datasource();
+                return;
+            }
+            txtPkg.Text = dt.Rows[0][0].ToString();
 
         }
 
-        private void btnViewPkg_Click(object sender, EventArgs e)
+        public void getPkgData(string code)
         {
-            Form_OnHide();
-            frmPackageList f = new frmPackageList(this);
-            f.Show();
+            if (code.Length < 1) return;
+
+            Data.pkgOrderList.Clear();
+
+            DataTable dt = null;
+            string sql = string.Format(@"select sMaterialDesc, mmInDtl.sColorNo as sColorNo, mmInDtl.sBatchNo as sBatchNo, 
+ISNULL( min(mmInDtl.iPackageOrder), 0) as minPkgNo, ISNULL( max(mmInDtl.iPackageOrder), 0) as maxPkgNo
+from mmInDtl 
+left join sdOrderDtl on usdOrderDtlGUID=sdOrderDtl.uGUID
+left join sdOrderHdr on usdOrderHdrGUID=sdOrderHdr.uGUID
+where (mmInDtl.sSampleMaterialNo='{0}' or sMaterialDesc='{0}' or sdOrderDtl.sCustomerStyleNo='{0}' )
+and (sMaterialDesc is not null or mmInDtl.sSampleMaterialNo is not null or sdOrderDtl.sCustomerStyleNo is not null ) 
+and mmInDtl.sColorNo is not null and iPackageOrder is not null
+and (nStockPkgQty>0 )
+group by sMaterialDesc,mmInDtl.sColorNo, sBatchNo
+order by sMaterialDesc, maxPkgNo desc,mmInDtl.sColorNo, sBatchNo", code);
+
+            try
+            {
+                dt = DB.Query(sql);
+            }
+            catch (Exception e)
+            {
+                string str = "{@error@}" + e.Message;
+                MessageBox.Show(str);
+                return;
+            }
+            if (object.ReferenceEquals(null, dt) || dt.Rows.Count < 1) return;
+
+            foreach (DataRow row in dt.Rows)
+            {
+                Data.pkgOrderList.Add(new pkgOrderClass( code, row[0].ToString(), row[1].ToString(), row[2].ToString(), int.Parse(row[3].ToString()), int.Parse(row[4].ToString())));
+            }
+
+            updateLisBox_datasource();
+
         }
-        
+
+        private void btnQuery_Click(object sender, EventArgs e)
+        {
+            getPkgData( txtPkg.Text );
+        }
+
+        private void txtPkg_GotFocus(object sender, EventArgs e)
+        {
+            ShowSIP(true);
+        }
+
+        private void txtPkg_LostFocus(object sender, EventArgs e)
+        {
+            ShowSIP(false);
+        }
+
+
     }
 }

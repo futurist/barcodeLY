@@ -17,6 +17,8 @@ namespace barcode
     class Data
     {
 
+        public static string lastPkgCode = "";
+
         public static void debug(string str) { }
 
         public static void ShowMessage(string str)
@@ -161,6 +163,9 @@ namespace barcode
         {
             Directory.Delete(cacheFolder, true);
         }
+
+
+        public static List<pkgOrderClass> pkgOrderList = new List<pkgOrderClass> { };
 
 
         public static List<folderClass> folderList = new List<folderClass> { };
@@ -340,8 +345,8 @@ namespace barcode
                 {
                     string mmout = @"insert into mmOutHdr
 ([sStoreOutNo],[sRemark],[sStoreOutStatus],[iCompanyID],[bIsBackOut],[ummStoreGUID],[ummStoreOutTypeGUID],[sStoreOutMan],[tStoreOutTime],[sCreator],[tCreateTime],[sUpdateMan],[tUpdateTime])
-select N'STE'+ CONVERT (varchar(20), (cast ( max( RIGHT( sStoreOutNo, 9 ) ) as int )+1) ) as maxOutID, 
-N'" + folder.Id + "',N'NEW',2,0,N'{637A600B-C40F-4933-991F-4426374649D2}',N'{49C502B9-C234-4002-9DA7-2145BC1001A9}',N'yangjm',GETDATE(),N'yangjm',GETDATE(),N'yangjm',GETDATE() from mmOutHdr";
+select N'STE'+ right(convert(varchar(20),GETDATE(),112), 6) + right('0000'+CONVERT (varchar(20), (cast ( isnull(max( RIGHT( sStoreOutNo, 3 ) ), 0) as int )+1) ),3) as maxOutID, 
+N'"+ folder.Id +"',N'NEW',2,0,N'{637A600B-C40F-4933-991F-4426374649D2}',N'{49C502B9-C234-4002-9DA7-2145BC1001A9}',N'yangjm',GETDATE(),N'yangjm',GETDATE(),N'yangjm',GETDATE() from mmOutHdr where LEN(sStoreOutNo)=12 and tUpdateTime>= CAST(CAST( GETDATE() AS DATE) AS DATETIME)";
 
                     int ret = DB.Exec(mmout);
 
@@ -605,6 +610,45 @@ left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDt
 
         }
 
+    }
+
+
+
+
+    public class pkgOrderClass
+    {
+        public string productSN { get; set; }
+        public string sMaterialDesc { get; set; }
+        public string sColorNo { get; set; }
+        public string sBatchNo { get; set; }
+        public int minPkgNo { get; set; }
+        public int maxPkgNo { get; set; }
+
+        public pkgOrderClass(string productSN)
+        {
+            this.productSN = productSN;
+            this.sMaterialDesc = "";
+            this.sColorNo = "";
+            this.sBatchNo = "";
+            this.minPkgNo = 0;
+            this.maxPkgNo = 0;
+        }
+        public pkgOrderClass(string productSN, string sMaterialDesc, string sColorNo , string sBatchNo, int minPkgNo, int maxPkgNo )
+        {
+            this.productSN = productSN;
+            this.sMaterialDesc = sMaterialDesc;
+            this.sColorNo = sColorNo;
+            this.sBatchNo = sBatchNo;
+            this.minPkgNo = minPkgNo;
+            this.maxPkgNo = maxPkgNo;
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"{0}:{1}[{2}]:{3}-{4}", 
+                sMaterialDesc == "" ? productSN : sMaterialDesc, 
+                sColorNo, sBatchNo, minPkgNo, maxPkgNo);
+        }
     }
 
 

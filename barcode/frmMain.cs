@@ -67,7 +67,9 @@ namespace barcode
 
         private void btnPack_Click(object sender, EventArgs e)
         {
-            //disbButton();
+            disbButton();
+            frmPackage f = new frmPackage();
+            f.Show();
         }
     }
 }

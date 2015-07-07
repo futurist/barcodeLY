@@ -33,6 +33,9 @@
             this.txtPkg = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.panelBar = new System.Windows.Forms.Panel();
+            this.btnDeleteBar = new System.Windows.Forms.Button();
+            this.lblCurPkg = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
             this.btnUpload = new System.Windows.Forms.Button();
             this.lblStatus = new System.Windows.Forms.LinkLabel();
             this.txtDebug = new System.Windows.Forms.TextBox();
@@ -44,8 +47,9 @@
             this.label2 = new System.Windows.Forms.Label();
             this.btnPkg = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
-            this.lblLast = new System.Windows.Forms.Label();
+            this.lblLastPkg = new System.Windows.Forms.Label();
             this.txtExit = new System.Windows.Forms.Button();
+            this.btnViewPkg = new System.Windows.Forms.Button();
             this.panelBar.SuspendLayout();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -57,6 +61,7 @@
             this.txtPkg.Name = "txtPkg";
             this.txtPkg.Size = new System.Drawing.Size(153, 34);
             this.txtPkg.TabIndex = 23;
+            this.txtPkg.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtPkg_KeyDown);
             // 
             // label1
             // 
@@ -68,23 +73,49 @@
             // 
             // panelBar
             // 
+            this.panelBar.Controls.Add(this.btnDeleteBar);
+            this.panelBar.Controls.Add(this.lblCurPkg);
+            this.panelBar.Controls.Add(this.label4);
             this.panelBar.Controls.Add(this.btnUpload);
             this.panelBar.Controls.Add(this.lblStatus);
             this.panelBar.Controls.Add(this.txtDebug);
             this.panelBar.Controls.Add(this.lblDuplicate);
             this.panelBar.Controls.Add(this.listBox1);
             this.panelBar.Controls.Add(this.panel1);
-            this.panelBar.Location = new System.Drawing.Point(6, 9);
+            this.panelBar.Location = new System.Drawing.Point(220, 14);
             this.panelBar.Name = "panelBar";
             this.panelBar.Size = new System.Drawing.Size(232, 240);
             // 
+            // btnDeleteBar
+            // 
+            this.btnDeleteBar.Location = new System.Drawing.Point(132, 191);
+            this.btnDeleteBar.Name = "btnDeleteBar";
+            this.btnDeleteBar.Size = new System.Drawing.Size(80, 35);
+            this.btnDeleteBar.TabIndex = 31;
+            this.btnDeleteBar.Text = "删除条码";
+            this.btnDeleteBar.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // lblCurPkg
+            // 
+            this.lblCurPkg.Location = new System.Drawing.Point(68, 159);
+            this.lblCurPkg.Name = "lblCurPkg";
+            this.lblCurPkg.Size = new System.Drawing.Size(100, 20);
+            // 
+            // label4
+            // 
+            this.label4.Location = new System.Drawing.Point(11, 159);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(65, 20);
+            this.label4.Text = "托盘号:";
+            // 
             // btnUpload
             // 
-            this.btnUpload.Location = new System.Drawing.Point(67, 160);
+            this.btnUpload.Location = new System.Drawing.Point(11, 191);
             this.btnUpload.Name = "btnUpload";
             this.btnUpload.Size = new System.Drawing.Size(80, 35);
             this.btnUpload.TabIndex = 27;
             this.btnUpload.Text = "上传数据";
+            this.btnUpload.Click += new System.EventHandler(this.btnUpload_Click);
             // 
             // lblStatus
             // 
@@ -158,34 +189,43 @@
             // 
             // btnPkg
             // 
-            this.btnPkg.Location = new System.Drawing.Point(61, 60);
+            this.btnPkg.Location = new System.Drawing.Point(61, 54);
             this.btnPkg.Name = "btnPkg";
-            this.btnPkg.Size = new System.Drawing.Size(108, 47);
+            this.btnPkg.Size = new System.Drawing.Size(108, 38);
             this.btnPkg.TabIndex = 27;
             this.btnPkg.Text = "确定";
             this.btnPkg.Click += new System.EventHandler(this.btnPkg_Click);
             // 
             // label3
             // 
-            this.label3.Location = new System.Drawing.Point(6, 155);
+            this.label3.Location = new System.Drawing.Point(6, 112);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(126, 20);
             this.label3.Text = "上次使用的托盘:";
             // 
-            // lblLast
+            // lblLastPkg
             // 
-            this.lblLast.Location = new System.Drawing.Point(130, 155);
-            this.lblLast.Name = "lblLast";
-            this.lblLast.Size = new System.Drawing.Size(55, 20);
+            this.lblLastPkg.Location = new System.Drawing.Point(130, 112);
+            this.lblLastPkg.Name = "lblLastPkg";
+            this.lblLastPkg.Size = new System.Drawing.Size(55, 20);
             // 
             // txtExit
             // 
-            this.txtExit.Location = new System.Drawing.Point(81, 210);
+            this.txtExit.Location = new System.Drawing.Point(81, 216);
             this.txtExit.Name = "txtExit";
-            this.txtExit.Size = new System.Drawing.Size(72, 20);
+            this.txtExit.Size = new System.Drawing.Size(72, 28);
             this.txtExit.TabIndex = 30;
             this.txtExit.Text = "退出";
             this.txtExit.Click += new System.EventHandler(this.txtExit_Click);
+            // 
+            // btnViewPkg
+            // 
+            this.btnViewPkg.Location = new System.Drawing.Point(81, 172);
+            this.btnViewPkg.Name = "btnViewPkg";
+            this.btnViewPkg.Size = new System.Drawing.Size(72, 28);
+            this.btnViewPkg.TabIndex = 31;
+            this.btnViewPkg.Text = "查看包号";
+            this.btnViewPkg.Click += new System.EventHandler(this.btnViewPkg_Click);
             // 
             // frmPackage
             // 
@@ -194,12 +234,13 @@
             this.AutoScroll = true;
             this.ClientSize = new System.Drawing.Size(238, 295);
             this.Controls.Add(this.panelBar);
-            this.Controls.Add(this.lblLast);
+            this.Controls.Add(this.lblLastPkg);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.btnPkg);
             this.Controls.Add(this.txtPkg);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.txtExit);
+            this.Controls.Add(this.btnViewPkg);
             this.Name = "frmPackage";
             this.Text = "frmPackage";
             this.panelBar.ResumeLayout(false);
@@ -224,7 +265,11 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button btnPkg;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label lblLast;
+        private System.Windows.Forms.Label lblLastPkg;
         private System.Windows.Forms.Button txtExit;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label lblCurPkg;
+        private System.Windows.Forms.Button btnDeleteBar;
+        private System.Windows.Forms.Button btnViewPkg;
     }
 }
