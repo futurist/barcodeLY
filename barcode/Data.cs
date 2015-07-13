@@ -343,10 +343,17 @@ namespace barcode
                 //生成出库号
                 if (folder.Code == "")
                 {
-                    string mmout = @"insert into mmOutHdr
+                    string mmout =
+@"declare @curdate nvarchar(20) = N'STE'+ right(convert(varchar(20),GETDATE(),112), 6);
+if exists( select top 1 * from [pbBillFormulaDtl] where sBillFormulaResetNo=@curdate )
+	UPDATE [pbBillFormulaDtl] set iBillSequence=iBillSequence+1 where sBillFormulaResetNo=@curdate;
+else
+	INSERT INTO pbBillFormulaDtl(uGUID, upbBillFormulaHdrGUID, sBillFormulaResetNo, iBillSequence, tGenerateTime)VALUES([DBO].[fnpbNewCombGUID](), N'{5532C616-C6DC-449F-B44A-B94576E4ACD3}', @curdate, 1, GETDATE());
+declare @maxSTE nvarchar(20) = @curdate + right('0000'+ CONVERT (varchar(20), (select iBillSequence from [pbBillFormulaDtl] where sBillFormulaResetNo=@curdate)), 3)
+
+insert into mmOutHdr
 ([sStoreOutNo],[sRemark],[sStoreOutStatus],[iCompanyID],[bIsBackOut],[ummStoreGUID],[ummStoreOutTypeGUID],[sStoreOutMan],[tStoreOutTime],[sCreator],[tCreateTime],[sUpdateMan],[tUpdateTime])
-select N'STE'+ right(convert(varchar(20),GETDATE(),112), 6) + right('0000'+CONVERT (varchar(20), (cast ( isnull(max( RIGHT( sStoreOutNo, 3 ) ), 0) as int )+1) ),3) as maxOutID, 
-N'"+ folder.Id +"',N'NEW',2,0,N'{637A600B-C40F-4933-991F-4426374649D2}',N'{49C502B9-C234-4002-9DA7-2145BC1001A9}',N'yangjm',GETDATE(),N'yangjm',GETDATE(),N'yangjm',GETDATE() from mmOutHdr where LEN(sStoreOutNo)=12 and tUpdateTime>= CAST(CAST( GETDATE() AS DATE) AS DATETIME)";
+select @maxSTE, N'"+ folder.Id +"',N'NEW',2,0,N'{637A600B-C40F-4933-991F-4426374649D2}',N'{49C502B9-C234-4002-9DA7-2145BC1001A9}',N'yangjm',GETDATE(),N'yangjm',GETDATE(),N'yangjm',GETDATE()";
 
                     int ret = DB.Exec(mmout);
 
@@ -369,11 +376,11 @@ N'"+ folder.Id +"',N'NEW',2,0,N'{637A600B-C40F-4933-991F-4426374649D2}',N'{49C50
 
                     codeDict.Add(folder.Id, folder.Code);
                 }
-
+                
                 //插入条码
                 List<string> fabricNos = new List<string> { };
                 List<string> packageNos = new List<string> { };
-                foreach (codeClass code in codeList)
+                foreach (codeClass code in Data.codeList)
                 {
                     if (code.Folder == folder.Id)
                     {
@@ -389,6 +396,8 @@ N'"+ folder.Id +"',N'NEW',2,0,N'{637A600B-C40F-4933-991F-4426374649D2}',N'{49C50
                 }
 
                 string sNO = string.Join(",", fabricNos.ToArray());
+
+
                 if (sNO != "")
                 {
                     int ret = DB.Exec(@"insert into mmOutDtl
@@ -403,6 +412,8 @@ left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDt
                 }
 
                 sNO = string.Join(",", packageNos.ToArray());
+
+
                 if (sNO != "")
                 {
                     int ret = DB.Exec(@"insert into mmOutDtl
@@ -623,6 +634,7 @@ left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDt
         public string sBatchNo { get; set; }
         public int minPkgNo { get; set; }
         public int maxPkgNo { get; set; }
+        public int countPkg { get; set; }
 
         public pkgOrderClass(string productSN)
         {
@@ -632,8 +644,9 @@ left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDt
             this.sBatchNo = "";
             this.minPkgNo = 0;
             this.maxPkgNo = 0;
+            this.countPkg = 0;
         }
-        public pkgOrderClass(string productSN, string sMaterialDesc, string sColorNo , string sBatchNo, int minPkgNo, int maxPkgNo )
+        public pkgOrderClass(string productSN, string sMaterialDesc, string sColorNo , string sBatchNo, int minPkgNo, int maxPkgNo, int countPkg )
         {
             this.productSN = productSN;
             this.sMaterialDesc = sMaterialDesc;
@@ -641,13 +654,21 @@ left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDt
             this.sBatchNo = sBatchNo;
             this.minPkgNo = minPkgNo;
             this.maxPkgNo = maxPkgNo;
+            this.countPkg = countPkg;
         }
 
         public override string ToString()
         {
-            return string.Format(@"{0}:{1}[{2}]:{3}-{4}", 
-                sMaterialDesc == "" ? productSN : sMaterialDesc, 
-                sColorNo, sBatchNo, minPkgNo, maxPkgNo);
+            string totalStr = "";
+            int t = maxPkgNo - minPkgNo + 1;
+            if(t<countPkg) totalStr = string.Format( "重包 库存{0}包,差异{1}", countPkg, countPkg-t);
+            if (t > countPkg) totalStr = string.Format("跳包 库存{0}包,差异{1}", countPkg, t - countPkg);
+
+
+            return string.Format(@"{0}:{1}[{2}]:{3}-{4}{5}", 
+                sMaterialDesc == "" ? productSN : sMaterialDesc,
+                sColorNo, sBatchNo, minPkgNo, maxPkgNo,
+                totalStr);
         }
     }
 

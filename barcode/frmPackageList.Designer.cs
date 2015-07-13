@@ -42,6 +42,9 @@
             this.txtExit = new System.Windows.Forms.Button();
             this.btnQuery = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
+            this.lblOrder = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.lblFINo = new System.Windows.Forms.Label();
             this.panelBar.SuspendLayout();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -81,18 +84,20 @@
             // 
             // panelBar
             // 
+            this.panelBar.Controls.Add(this.lblFINo);
+            this.panelBar.Controls.Add(this.label4);
             this.panelBar.Controls.Add(this.lblStatus);
             this.panelBar.Controls.Add(this.txtDebug);
             this.panelBar.Controls.Add(this.lblDuplicate);
             this.panelBar.Controls.Add(this.listBox1);
             this.panelBar.Controls.Add(this.panel1);
-            this.panelBar.Location = new System.Drawing.Point(6, 67);
+            this.panelBar.Location = new System.Drawing.Point(6, 59);
             this.panelBar.Name = "panelBar";
-            this.panelBar.Size = new System.Drawing.Size(232, 172);
+            this.panelBar.Size = new System.Drawing.Size(232, 198);
             // 
             // txtDebug
             // 
-            this.txtDebug.Location = new System.Drawing.Point(11, 62);
+            this.txtDebug.Location = new System.Drawing.Point(16, 94);
             this.txtDebug.MaxLength = 71200;
             this.txtDebug.Multiline = true;
             this.txtDebug.Name = "txtDebug";
@@ -102,7 +107,7 @@
             // lblDuplicate
             // 
             this.lblDuplicate.Font = new System.Drawing.Font("Arial", 18F, System.Drawing.FontStyle.Underline);
-            this.lblDuplicate.Location = new System.Drawing.Point(11, 50);
+            this.lblDuplicate.Location = new System.Drawing.Point(16, 82);
             this.lblDuplicate.Name = "lblDuplicate";
             this.lblDuplicate.Size = new System.Drawing.Size(201, 68);
             this.lblDuplicate.TabIndex = 24;
@@ -111,7 +116,7 @@
             // 
             // listBox1
             // 
-            this.listBox1.Location = new System.Drawing.Point(1, 32);
+            this.listBox1.Location = new System.Drawing.Point(6, 64);
             this.listBox1.Name = "listBox1";
             this.listBox1.Size = new System.Drawing.Size(220, 130);
             this.listBox1.TabIndex = 23;
@@ -144,7 +149,7 @@
             // 
             // txtExit
             // 
-            this.txtExit.Location = new System.Drawing.Point(81, 245);
+            this.txtExit.Location = new System.Drawing.Point(81, 261);
             this.txtExit.Name = "txtExit";
             this.txtExit.Size = new System.Drawing.Size(72, 29);
             this.txtExit.TabIndex = 36;
@@ -165,8 +170,27 @@
             this.label3.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
             this.label3.Location = new System.Drawing.Point(5, 9);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(164, 20);
+            this.label3.Size = new System.Drawing.Size(224, 20);
             this.label3.Text = "包号查询";
+            // 
+            // lblOrder
+            // 
+            this.lblOrder.Location = new System.Drawing.Point(81, 7);
+            this.lblOrder.Name = "lblOrder";
+            this.lblOrder.Size = new System.Drawing.Size(148, 20);
+            // 
+            // label4
+            // 
+            this.label4.Location = new System.Drawing.Point(5, 39);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(59, 20);
+            this.label4.Text = "落布号";
+            // 
+            // lblFINo
+            // 
+            this.lblFINo.Location = new System.Drawing.Point(57, 39);
+            this.lblFINo.Name = "lblFINo";
+            this.lblFINo.Size = new System.Drawing.Size(166, 20);
             // 
             // frmPackageList
             // 
@@ -174,6 +198,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoScroll = true;
             this.ClientSize = new System.Drawing.Size(238, 295);
+            this.Controls.Add(this.lblOrder);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.btnQuery);
             this.Controls.Add(this.panelBar);
@@ -204,5 +229,8 @@
         private System.Windows.Forms.Button txtExit;
         private System.Windows.Forms.Button btnQuery;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label lblOrder;
+        private System.Windows.Forms.Label lblFINo;
+        private System.Windows.Forms.Label label4;
     }
 }

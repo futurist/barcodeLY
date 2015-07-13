@@ -293,15 +293,20 @@ namespace barcode
             }
             totalID = totalID.Remove(totalID.Length - 1, 1);
 
-            string sql = string.Format(@"DECLARE @maxPkg VARCHAR(20),@sUpdateMan VARCHAR(20), @report uniqueidentifier;
+            string sql = string.Format(@"DECLARE @sUpdateMan VARCHAR(20), @report uniqueidentifier;
 set @sUpdateMan=(select sUpdateMan from mmInDtl where sFabricNo='{0}');
 set @report=(select upbReportFormatDtlGUID from pbBillReportDefine left join mmInDtl on sBillNo=sOrderNo where sFabricNo='{0}');
-set @maxPkg=(select N'P'+ right(convert(varchar(20),GETDATE(),112), 6) + right('0000'+CONVERT (varchar(20), (cast ( isnull(max( RIGHT( sPackageNo, 4 ) ), 0) as int )+1) ),4) as maxPkgID from mmInDtl  where  LEN(sPackageNo)=11 and tUpdateTime>= CAST(CAST( GETDATE() AS DATE) AS DATETIME));
+
+declare @curdate nvarchar(20) = N'P'+ right(convert(varchar(20),GETDATE(),112), 6);
+if exists( select top 1 * from [pbBillFormulaDtl] where sBillFormulaResetNo=@curdate )
+	UPDATE [pbBillFormulaDtl] set iBillSequence=iBillSequence+1 where sBillFormulaResetNo=@curdate;
+else
+	INSERT INTO pbBillFormulaDtl(uGUID, upbBillFormulaHdrGUID, sBillFormulaResetNo, iBillSequence, tGenerateTime)VALUES([DBO].[fnpbNewCombGUID](), N'{{875EFBBA-DBA8-42A5-A9DC-372D02BC1294}}', @curdate, 1, GETDATE());
+declare @maxPkg nvarchar(20) = @curdate + right('0000'+ CONVERT (varchar(20), (select iBillSequence from [pbBillFormulaDtl] where sBillFormulaResetNo=@curdate)), 4)
 
 update mmInDtl set sPackageNo=@maxPkg, iPackageOrder={2}, tUpdateTime=GETDATE() where sFabricNo in ({1});
 
-exec sppbRegisterBillReportTask  @maxPkg, 1003, @sUpdateMan,NULL, NULL, NULL, @report,1;
-", lastID, totalID, folder.Id);
+exec sppbRegisterBillReportTask  @maxPkg, 1003, @sUpdateMan,NULL, NULL, NULL, @report,1;", lastID, totalID, folder.Id);
 
             try
             {
