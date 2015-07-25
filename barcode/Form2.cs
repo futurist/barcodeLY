@@ -12,6 +12,7 @@ using System.Data.SqlClient;
 using System.Threading;
 using System.Text.RegularExpressions;
 using System.Runtime.Serialization;
+using OpenNETCF.IO;
 using barcode;
 
 namespace barcode
@@ -71,6 +72,7 @@ namespace barcode
             lv.Items.Clear();
             
             
+            
 
         }
 
@@ -109,6 +111,7 @@ namespace barcode
         {
             this.textBox1.Focus();
             this.textBox1.Text = Encoding.Default.GetString(BarCodeData, 0, nLength);
+            textBox1.Text = Regex.Replace(textBox1.Text, "^0+", "P");
             btnAdd_Click();
 
             //PlaySound("beep.wav", IntPtr.Zero, (Int32)Beep.SND_FILENAME | (Int32)Beep.SND_ASYNC);
@@ -622,6 +625,9 @@ mmInDtl.iPackageOrder as iPackageOrder
             {
                 return;
             }
+
+            code.Id = Regex.Replace(code.Id, "^0+", "P");
+
             if (checkDuplicate(code.Id) != false)
             {
                 showDuplicateMsg(code);

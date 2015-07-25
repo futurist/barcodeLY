@@ -11,6 +11,7 @@ using System.Data.SqlClient;
 using System.Threading;
 using System.Text.RegularExpressions;
 using System.Runtime.Serialization;
+using System.Diagnostics;
 using barcode;
 
 namespace barcode
@@ -56,7 +57,7 @@ namespace barcode
             txtDebug.Visible = false;
             panelBar.Location = new Point(5,14);
             Form_OnShow();
-
+            
         }
 
 
@@ -127,6 +128,7 @@ namespace barcode
         {
 
             if (code.Id.Length < 8) return;
+            code.Id = Regex.Replace(code.Id, "^0+", "P");
 
             if (code.Id.StartsWith("P", StringComparison.CurrentCultureIgnoreCase))
             {
@@ -307,6 +309,8 @@ declare @maxPkg nvarchar(20) = @curdate + right('0000'+ CONVERT (varchar(20), (s
 update mmInDtl set sPackageNo=@maxPkg, iPackageOrder={2}, tUpdateTime=GETDATE() where sFabricNo in ({1});
 
 exec sppbRegisterBillReportTask  @maxPkg, 1003, @sUpdateMan,NULL, NULL, NULL, @report,1;", lastID, totalID, folder.Id);
+
+
 
             try
             {

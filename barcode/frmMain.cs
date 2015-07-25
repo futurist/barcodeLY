@@ -21,6 +21,7 @@ namespace barcode
             this.TopMost = true;
             this.FormBorderStyle = FormBorderStyle.None;
             this.WindowState = FormWindowState.Maximized;
+            
         }
 
         private void frmMain_Load(object sender, EventArgs e)

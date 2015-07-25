@@ -69,6 +69,8 @@ namespace barcode
             listBox1.Focus();
 
             textBox1.Text = Data.lastPkgCode;
+            textBox1.Text = Regex.Replace(textBox1.Text, "^0+", "P");
+
             btnAdd_Click();
 
             scrollLB(listBox1.Handle);
@@ -259,6 +261,7 @@ namespace barcode
             }
             this.textBox1.Focus();
             this.textBox1.Text = Encoding.Default.GetString(BarCodeData, 0, nLength);
+            textBox1.Text = Regex.Replace(textBox1.Text, "^0+", "P");
             btnAdd_Click();
 
             
