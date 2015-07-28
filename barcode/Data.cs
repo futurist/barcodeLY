@@ -260,8 +260,8 @@ namespace barcode
             }
 
 
-            WinCE.createMemFile("EXIT");
-            if (commExited) WinCE.closeMemFile();
+            ShareMem.createMemFile("EXIT");
+            if (commExited) ShareMem.closeMemFile();
             //this.Close();
             Application.Exit();
         }
@@ -998,6 +998,38 @@ left join mmOutHdr on mmOutHdr.sStoreOutNo = N'" + folder.Code + "' where mmInDt
 
 
 
+    public static class Prompt
+    {
+        public static string ShowDialog(string text, string caption)
+        {
+            Form prompt = new Form();
+            prompt.Width = 210;
+            prompt.Height = 150;
+            prompt.Location = new System.Drawing.Point(10, 50);
+            prompt.FormBorderStyle = FormBorderStyle.FixedToolWindow;
+            prompt.Text = caption;
+            prompt.TopMost = true;
+            //prompt.StartPosition = FormStartPosition.CenterScreen;
+            Label textLabel = new Label() { Left = 10, Width = 190, Top = 20, Text = text };
+            textLabel.Text = caption;
 
+            TextBox textBox = new TextBox() { Left = 10, Top = 50, Width = 200 };
+            textBox.KeyDown += (sender, e) => { if (e.KeyCode.ToString() == "Return") { prompt.Close(); } };
+
+            Button confirmation = new Button() { Text = "确定", Left = 10, Width = 90, Height = 30, Top = 80, DialogResult = DialogResult.OK };
+            confirmation.Click += (sender, e) => { prompt.Close(); };
+
+            Button cancel = new Button() { Text = "取消", Left = 100, Width = 90, Height=30, Top =80, DialogResult = DialogResult.Cancel };
+            cancel.Click += (sender, e) => { prompt.Close(); };
+
+            prompt.Controls.Add(textBox);
+            prompt.Controls.Add(confirmation);
+            prompt.Controls.Add(cancel);
+            prompt.Controls.Add(textLabel);
+            //prompt.AcceptButton = confirmation;
+
+            return prompt.ShowDialog() == DialogResult.OK ? textBox.Text : "";
+        }
+    }
 
 }

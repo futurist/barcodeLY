@@ -33,30 +33,30 @@
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.lblStatus = new System.Windows.Forms.LinkLabel();
             this.panelBar = new System.Windows.Forms.Panel();
+            this.lblFINo = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
             this.txtDebug = new System.Windows.Forms.TextBox();
             this.lblDuplicate = new System.Windows.Forms.LinkLabel();
             this.listBox1 = new System.Windows.Forms.ListBox();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.btnRepeat = new System.Windows.Forms.Button();
             this.txtPkg = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.txtExit = new System.Windows.Forms.Button();
             this.btnQuery = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.lblOrder = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.lblFINo = new System.Windows.Forms.Label();
             this.panelBar.SuspendLayout();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnAdd
             // 
-            this.btnAdd.Location = new System.Drawing.Point(192, 1);
+            this.btnAdd.Location = new System.Drawing.Point(148, 1);
             this.btnAdd.Name = "btnAdd";
-            this.btnAdd.Size = new System.Drawing.Size(72, 30);
+            this.btnAdd.Size = new System.Drawing.Size(41, 30);
             this.btnAdd.TabIndex = 1;
-            this.btnAdd.Text = "添加";
-            this.btnAdd.Visible = false;
+            this.btnAdd.Text = "检查";
             // 
             // label2
             // 
@@ -69,14 +69,14 @@
             // 
             this.textBox1.Location = new System.Drawing.Point(33, 5);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(170, 23);
+            this.textBox1.Size = new System.Drawing.Size(113, 23);
             this.textBox1.TabIndex = 1;
             // 
             // lblStatus
             // 
             this.lblStatus.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Regular);
             this.lblStatus.ForeColor = System.Drawing.Color.Black;
-            this.lblStatus.Location = new System.Drawing.Point(205, 8);
+            this.lblStatus.Location = new System.Drawing.Point(7, 272);
             this.lblStatus.Name = "lblStatus";
             this.lblStatus.Size = new System.Drawing.Size(18, 18);
             this.lblStatus.TabIndex = 25;
@@ -86,7 +86,6 @@
             // 
             this.panelBar.Controls.Add(this.lblFINo);
             this.panelBar.Controls.Add(this.label4);
-            this.panelBar.Controls.Add(this.lblStatus);
             this.panelBar.Controls.Add(this.txtDebug);
             this.panelBar.Controls.Add(this.lblDuplicate);
             this.panelBar.Controls.Add(this.listBox1);
@@ -94,6 +93,19 @@
             this.panelBar.Location = new System.Drawing.Point(6, 59);
             this.panelBar.Name = "panelBar";
             this.panelBar.Size = new System.Drawing.Size(232, 198);
+            // 
+            // lblFINo
+            // 
+            this.lblFINo.Location = new System.Drawing.Point(57, 39);
+            this.lblFINo.Name = "lblFINo";
+            this.lblFINo.Size = new System.Drawing.Size(166, 20);
+            // 
+            // label4
+            // 
+            this.label4.Location = new System.Drawing.Point(5, 39);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(59, 20);
+            this.label4.Text = "落布号";
             // 
             // txtDebug
             // 
@@ -123,12 +135,22 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.btnRepeat);
             this.panel1.Controls.Add(this.textBox1);
             this.panel1.Controls.Add(this.btnAdd);
             this.panel1.Controls.Add(this.label2);
-            this.panel1.Location = new System.Drawing.Point(1, 0);
+            this.panel1.Location = new System.Drawing.Point(-3, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(211, 33);
+            this.panel1.Size = new System.Drawing.Size(235, 33);
+            // 
+            // btnRepeat
+            // 
+            this.btnRepeat.Location = new System.Drawing.Point(191, 1);
+            this.btnRepeat.Name = "btnRepeat";
+            this.btnRepeat.Size = new System.Drawing.Size(41, 30);
+            this.btnRepeat.TabIndex = 3;
+            this.btnRepeat.Text = "重打";
+            this.btnRepeat.Click += new System.EventHandler(this.btnRepeat_Click);
             // 
             // txtPkg
             // 
@@ -179,19 +201,6 @@
             this.lblOrder.Name = "lblOrder";
             this.lblOrder.Size = new System.Drawing.Size(148, 20);
             // 
-            // label4
-            // 
-            this.label4.Location = new System.Drawing.Point(5, 39);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(59, 20);
-            this.label4.Text = "落布号";
-            // 
-            // lblFINo
-            // 
-            this.lblFINo.Location = new System.Drawing.Point(57, 39);
-            this.lblFINo.Name = "lblFINo";
-            this.lblFINo.Size = new System.Drawing.Size(166, 20);
-            // 
             // frmPackageList
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -200,6 +209,7 @@
             this.ClientSize = new System.Drawing.Size(238, 295);
             this.Controls.Add(this.lblOrder);
             this.Controls.Add(this.label3);
+            this.Controls.Add(this.lblStatus);
             this.Controls.Add(this.btnQuery);
             this.Controls.Add(this.panelBar);
             this.Controls.Add(this.txtPkg);
@@ -232,5 +242,6 @@
         private System.Windows.Forms.Label lblOrder;
         private System.Windows.Forms.Label lblFINo;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Button btnRepeat;
     }
 }

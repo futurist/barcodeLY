@@ -28,14 +28,14 @@ namespace sqlmonitor
             //this.WindowState = FormWindowState.Maximized;
 
 
-            //textBox1.Text = (WinCE.readMemFile());
+            //textBox1.Text = (ShareMem.readMemFile());
 
             CONFIG.initServer();
 
             //launchApp();
 
 
-            WinCE.createMemFile("OK");
+            ShareMem.createMemFile("OK");
 
             //getDataAsync("P1506160166");
 
@@ -60,7 +60,7 @@ namespace sqlmonitor
         {
             string SN;
             
-            string data = (WinCE.readMemFile());
+            string data = (ShareMem.readMemFile());
 
             if (data == "EXIT")
             {
@@ -77,7 +77,7 @@ namespace sqlmonitor
 
             if (data == "OK" && Data.putBuffer != "" && Data.prevPutBuffer!=Data.putBuffer )
             {
-                WinCE.createMemFile(">>>>" + Data.putBuffer);
+                ShareMem.createMemFile(">>>>" + Data.putBuffer);
                 Data.prevPutBuffer = Data.putBuffer;
                 debug("Send:" + Data.putBuffer);
                 return;
@@ -89,7 +89,7 @@ namespace sqlmonitor
                 string[] SNs = Regex.Split(data.Substring(4), "{@sn@}");
 
                 Data.putBuffer = getManyData(SNs);
-                WinCE.createMemFile("OK");
+                ShareMem.createMemFile("OK");
 
                 //debug("Get:"+SN+" "+SN.Length.ToString());
                 //getDataAsync(SN);
@@ -115,8 +115,8 @@ namespace sqlmonitor
 
         public void exitApp() {
             inter1.Enabled = false;
-            WinCE.createMemFile("EXIT");
-            if (commExited) WinCE.closeMemFile();
+            ShareMem.createMemFile("EXIT");
+            if (commExited) ShareMem.closeMemFile();
             //MobileLaunch.exitApp();
             Application.Exit();
         }

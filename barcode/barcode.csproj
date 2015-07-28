@@ -139,6 +139,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="ShareMem.cs" />
     <Compile Include="WinCE.cs" />
   </ItemGroup>
   <ItemGroup>

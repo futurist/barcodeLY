@@ -12,7 +12,7 @@ using System.Threading;
 using System.Text.RegularExpressions;
 using System.Runtime.Serialization;
 using barcode;
-
+using System.Diagnostics;
 
 namespace barcode
 {
@@ -293,7 +293,7 @@ namespace barcode
         {
 
             if (code.Length < 8) return;
-
+            code = Regex.Replace(code, "^0+", "P");
            
             PlaySound("beep.wav", IntPtr.Zero, (Int32)Beep.SND_FILENAME | (Int32)Beep.SND_ASYNC);
 
@@ -495,6 +495,39 @@ order by sMaterialDesc, maxPkgNo desc,mmInDtl.sColorNo, sBatchNo", code);
         private void txtPkg_LostFocus(object sender, EventArgs e)
         {
             ShowSIP(false);
+        }
+
+        private void btnRepeat_Click(object sender, EventArgs e)
+        {
+            string updateMan = Prompt.ShowDialog("", "选择机台号(无需输入qc)");
+
+            if(updateMan=="") return;
+
+            updateMan = "qc" + updateMan.PadLeft(2, '0');
+
+            textBox1.Text = Regex.Replace(textBox1.Text, "^0+", "P");
+            string code = textBox1.Text;
+            int codeType = code.StartsWith("P", StringComparison.CurrentCultureIgnoreCase) ? 1003 : 1004;
+
+            DataTable dt = null;
+            string sql = string.Format(@"DECLARE @report uniqueidentifier;
+set @report=(select upbReportFormatDtlGUID from pbBillReportDefine left join mmInDtl on sBillNo=sOrderNo where sFabricNo='{0}' or sPackageNo='{0}');
+exec sppbRegisterBillReportTask  '{0}', {1}, '{2}', NULL, NULL, NULL, @report, 1 ", code, codeType, updateMan);
+            
+            Debug.WriteLine(sql);
+
+            return;
+
+            try
+            {
+                dt = DB.Query(sql);
+            }
+            catch (Exception ex)
+            {
+                string str = "{@error@}" + ex.Message;
+                MessageBox.Show(str);
+                return;
+            }
         }
 
 

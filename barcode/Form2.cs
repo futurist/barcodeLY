@@ -57,8 +57,8 @@ namespace barcode
             //this.listBox1.DataSource = Data.codeList;
 
 
-            //textBox2.Text = (WinCE.readMemFile());
-            WinCE.createMemFile("OK");
+            //textBox2.Text = (ShareMem.readMemFile());
+            ShareMem.createMemFile("OK");
 
 
             inter2.Enabled = false;
@@ -125,7 +125,7 @@ namespace barcode
             Data.cacheToFile(folder.Id);
 
             string sql;
-            string data = (WinCE.readMemFile());
+            string data = (ShareMem.readMemFile());
 
             if (data == "EXIT")
             {
@@ -153,7 +153,7 @@ namespace barcode
                 if (Data.putBuffer != "" && Data.prevPutBuffer != Data.putBuffer)
                 {
                     showMsg("<");
-                    WinCE.createMemFile("<<<<" + Data.putBuffer);
+                    ShareMem.createMemFile("<<<<" + Data.putBuffer);
                     Data.prevPutBuffer = Data.putBuffer;
                     debug("Send:" + Data.putBuffer);
 
@@ -164,7 +164,7 @@ namespace barcode
             if (data.StartsWith(">>>>"))
             {
                 showMsg(">");
-                WinCE.createMemFile("OK");
+                ShareMem.createMemFile("OK");
                 sql = data.Substring(4);
                 debug("Get:"+sql);
                 
@@ -1002,7 +1002,7 @@ mmInDtl.iPackageOrder as iPackageOrder
             Data.prevSN = "";
             Data.prevSN2 = "";
             MessageBox.Show("InitMem");
-            WinCE.createMemFile("OK");
+            ShareMem.createMemFile("OK");
         }
 
 
